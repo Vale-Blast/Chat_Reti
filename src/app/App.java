@@ -52,7 +52,6 @@ public class App implements Runnable {
 	private App() {
 		size = Size.getInstance();
 		chat_manager = ChatManager.getInstance();
-		nicks = chat_manager.getNicks();
 		chats = chat_manager.getChats();
 		messages_panel = new JPanel(); //TODO Per ora è vuoto ma in futuro potremmo scrivere qualcosa tipo "apri la chat"
 		messages_panel.setBounds(size.getChats().width, size.getToolbar().height, size.getMessages().width, size.getMessages().height);
@@ -125,183 +124,6 @@ public class App implements Runnable {
 
 			}
 		});
-		JButton new_nick = new JButton(new ImageIcon(new ImageIcon("resources/new_nick.png")
-								.getImage().getScaledInstance(size.getToolbar().height, size.getToolbar().height, Image.SCALE_FAST)));
-		new_nick.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				final JFrame add_nick = new JFrame("Add a new Nickname");
-				add_nick.setLayout(null);
-				add_nick.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-				JLabel name_label = new JLabel("Name: ");
-				final JTextField name_field = new JTextField();
-				JLabel address_label = new JLabel("IP Address: ");
-				final JTextField address_field = new JTextField();
-				JLabel port_label = new JLabel("Port: ");
-				final JTextField port_field = new JTextField();
-				JButton ok = new JButton("Ok");
-				JButton cancel = new JButton("Cancel");
-				ok.addActionListener(new ActionListener() {
-
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						if (name_field.getText().length() == 0 || address_field.getText().length() == 0 || port_field.getText().length() == 0)
-							JOptionPane.showMessageDialog(add_nick, "Name field, Address field or Port field empty",
-									"EMPTY_FIELDS", JOptionPane.WARNING_MESSAGE); // error popup
-						else {
-							try {
-								chat_manager.addNick(name_field.getText(), address_field.getText(), Integer.parseInt(port_field.getText()));
-								nicks = chat_manager.getNicks();
-								ChatList();
-								add_nick.dispose();
-							} catch (IOException e1) {
-								e1.printStackTrace();
-								JOptionPane.showMessageDialog(add_nick, "IO Error while trying to add nickname",
-										"IO_ERROR", JOptionPane.WARNING_MESSAGE);
-							} catch (NumberFormatException e1) {
-								e1.printStackTrace();
-								JOptionPane.showMessageDialog(add_nick, "Error on port number, please check it and try again",
-										"NUMBER_ERROR", JOptionPane.WARNING_MESSAGE);
-							} catch (Throwable e1) {
-								e1.printStackTrace();
-								JOptionPane.showMessageDialog(add_nick, e1.getMessage(),
-										"NICK_ERROR", JOptionPane.WARNING_MESSAGE);
-							}
-						}
-					}
-				});
-				cancel.addActionListener(new ActionListener() {
-
-					@Override
-					public void actionPerformed(ActionEvent arg0) {
-						add_nick.dispose();						
-					}
-				});
-				add_nick.add(name_label);
-				add_nick.add(name_field);
-				add_nick.add(address_label);
-				add_nick.add(address_field);
-				add_nick.add(port_label);
-				add_nick.add(port_field);
-				add_nick.add(ok);
-				add_nick.add(cancel);
-				add_nick.setResizable(false);
-				int vpadd = size.getAdd_nick().height/10;
-				int hpadd = size.getNew_chat().width/10;
-				add_nick.setBounds(size.getScreen_offset().width, size.getScreen_offset().height, size.getAdd_nick().width, size.getAdd_nick().height);
-				name_label.setBounds(size.getAdd_nick().width/15, size.getAdd_nick().height/10, size.getAdd_nick().width/2, size.getAdd_nick().height/7);
-				name_field.setBounds(size.getAdd_nick().width/2, size.getAdd_nick().height/10, size.getAdd_nick().width/2, size.getAdd_nick().height/7);
-				add_nick.setVisible(true);
-			}
-		});
-		JButton edit_nick = new JButton(new ImageIcon(new ImageIcon("resources/edit_nick.png")
-								.getImage().getScaledInstance(size.getToolbar().height, size.getToolbar().height, Image.SCALE_FAST)));
-		edit_nick.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				final JFrame edit_nick = new JFrame("Edit Nick");
-				edit_nick.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-				edit_nick.setSize(400, 360);
-				JPanel main_panel = new JPanel(new BorderLayout(10, 10));
-				JPanel panel = new JPanel(new FlowLayout(50, 10, 10));
-				JPanel ok_cancel = new JPanel(new FlowLayout(50, 10, 10));
-				main_panel.setBorder(new EmptyBorder(10, 10, 10, 10));
-				panel.setBorder(new EmptyBorder(10, 10, 10, 10));
-				ok_cancel.setBorder(new EmptyBorder(10, 10, 10, 10));
-				edit_nick.add(main_panel);
-				final JComboBox<String> nick_list = new JComboBox<String>(nicks);
-				JLabel name_label = new JLabel("Name: ");
-				final JTextField name_field = new JTextField(23);
-				JLabel address_label = new JLabel("IP Address: ");
-				final JTextField address_field = new JTextField(23);
-				JLabel port_label = new JLabel("Port: ");
-				final JTextField port_field = new JTextField(23);
-				JButton ok = new JButton("Ok");
-				JButton cancel = new JButton("Cancel");
-				JButton delete = new JButton("Delete");
-				ok.addActionListener(new ActionListener() {
-
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						if (name_field.getText().length() == 0 || address_field.getText().length() == 0 || port_field.getText().length() == 0)
-							JOptionPane.showMessageDialog(edit_nick, "Name field, Address field or Port field empty",
-									"EMPTY_FIELDS", JOptionPane.WARNING_MESSAGE); // error popup
-						else {
-							try {
-								chat_manager.editNick((String) nick_list.getSelectedItem(), name_field.getText(),
-										address_field.getText(), Integer.parseInt(port_field.getText()));
-								nicks = chat_manager.getNicks();
-								ChatList();
-								edit_nick.dispose();
-							} catch (NumberFormatException e1) {
-								e1.printStackTrace();
-								JOptionPane.showMessageDialog(edit_nick, "Error on port number, please check it and try again",
-										"NUMBER_ERROR", JOptionPane.WARNING_MESSAGE);
-							} catch (Throwable e1) {
-								e1.printStackTrace();
-								JOptionPane.showMessageDialog(edit_nick, e1.getMessage(),
-										"NICK_ERROR", JOptionPane.WARNING_MESSAGE);
-							}
-						}
-					}
-				});
-				cancel.addActionListener(new ActionListener() {
-
-					@Override
-					public void actionPerformed(ActionEvent arg0) {
-						edit_nick.dispose();						
-					}
-				});
-				nick_list.addActionListener(new ActionListener() {
-
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						@SuppressWarnings("unchecked")
-						JComboBox<String> cb = (JComboBox<String>) e.getSource();
-						name_field.setText((String) cb.getSelectedItem());
-						String addr_port = chat_manager.getAddress((String) cb.getSelectedItem());
-						address_field.setText(addr_port.substring(0, addr_port.lastIndexOf(":")));
-						port_field.setText(addr_port.substring(addr_port.lastIndexOf(":")+1));
-					}
-				});
-				delete.addActionListener(new ActionListener() {
-					
-					@Override
-					public void actionPerformed(ActionEvent arg0) {
-						int reply = JOptionPane.showConfirmDialog(edit_nick, "Do you really want to delete " +
-								nick_list.getSelectedItem() + "?", "Confirm delete", JOptionPane.YES_NO_OPTION);
-						if (reply == JOptionPane.YES_OPTION) {
-							try {
-								chat_manager.deleteNick((String) nick_list.getSelectedItem());
-								ChatList();
-							} catch (Throwable e) {
-								e.printStackTrace();
-								JOptionPane.showMessageDialog(edit_nick, e.getMessage(),
-										"NICK_ERROR", JOptionPane.WARNING_MESSAGE);
-							}
-							nicks = chat_manager.getNicks();
-							edit_nick.dispose();
-						}	
-					}
-				});
-				main_panel.add(nick_list, BorderLayout.NORTH);
-				panel.add(name_label);
-				panel.add(name_field);
-				panel.add(address_label);
-				panel.add(address_field);
-				panel.add(port_label);
-				panel.add(port_field);
-				main_panel.add(panel, BorderLayout.CENTER);
-				ok_cancel.add(ok);
-				ok_cancel.add(cancel);
-				ok_cancel.add(delete);
-				main_panel.add(ok_cancel, BorderLayout.SOUTH);
-				edit_nick.setResizable(false);
-				edit_nick.setVisible(true);
-			}							
-		});
 		JButton exit = new JButton(new ImageIcon(new ImageIcon("resources/exit.png")
 								.getImage().getScaledInstance(size.getToolbar().height, size.getToolbar().height, Image.SCALE_FAST)));
 		exit.addActionListener(new ActionListener() {
@@ -315,8 +137,6 @@ public class App implements Runnable {
 			}
 		});
 		toolbar.add(new_chat);
-		toolbar.add(new_nick);
-		toolbar.add(edit_nick);
 		toolbar.add(exit); // leave last one in the toolbar
 		chat_panel = new JPanel(new GridLayout(chats.length, 1));
 		JScrollPane chat_list = new JScrollPane(chat_panel, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
