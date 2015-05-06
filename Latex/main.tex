@@ -1,0 +1,53 @@
+\documentclass[12pt, a4paper, twoside, openright]{book}
+\usepackage[italian ,english]{babel}
+\usepackage{makeidx}
+\usepackage[utf8x]{inputenc}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true, urlcolor=blue, linkcolor=blue}
+\usepackage{color}
+\usepackage{indentfirst}
+\usepackage[T1]{fontenc}
+%\usepackage{amsfonts}
+%\usepackage{amssymb}
+%\usepackage{nicefrac}
+%\usepackage{dashrule}
+%\usepackage{ltablex, arydshln}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{empheq}
+\usepackage{relsize}
+\usepackage[Lenny]{fncychap}
+%\usepackage[bottom]{footmisc}
+%\interfootnotelinepenalty =10000
+%\usepackage{acronym}
+\usepackage{verbatim}
+\usepackage{varioref}
+\pagestyle{plain}
+
+\makeatletter
+\def\cleardoublepage{\clearpage\if@twoside \ifodd\c@page\else \hbox{}
+\vspace*{\fill}
+\thispagestyle{empty}
+\newpage
+\if@twocolumn \hbox{} \newpage \fi\fi\fi}
+\makeatother
+
+%PAGINA DI COPERTINA DA INSERIRE
+
+\newpage \setcounter{page}[1]
+
+\linespread{1.3}
+
+\begin{document}
+\tableofcontents
+%\listoffigures
+%\listoftables
+
+\input{problem.tex}
+\input{related.tex}
+\input{my_solution.tex}
+\input{conclusion.tex}
+
+\end{document}
+
+
