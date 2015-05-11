@@ -1,0 +1,19 @@
+Attenzione a:
+
+    1) File contenenti chat sono in chiaro sul PC e non sono protetti
+    2) File contenenti chat sono memorizzati come "nick.txt" perciò nel caso due utenti abbiano lo stesso nick ci sarà un accavallamento
+    3) Messaggi sono trasmessi in chiaro, sarebbe utile iviarsi chiave pubblica
+    4) Aggiungere delle impostazioni per utente che può modficare:
+           - Time to sleep del thread scan
+           - buff length  per ricezione
+
+    5) Utente non è sicuro che messaggio sia stato inviato correttamente e che sia arrivato, potremmo fare una piccola risposta automatica
+       come messaggio speciale "##RECEIVED" così so che l'altro l'ha ricevuto
+
+    6) Utente non può personalizzare lo sfondo delle chat
+    7) Non ci sono controlli particolari sugli spazi, se ci sono solo spazi non viene inviato nulla ma se l'utente scrive "   a    " e
+       invia vengono inviati anche tutti gli spazi
+    8) Utente non può visualizzare singole informazioni di ogni messaggio nel dettaglio (timestamp invio/ricezione/lettura e simili)
+    9) Migliorare interfaccia grafica dei messaggi creando nuvolette separate
+   10) Alla disconnessione un utente dovrebbe (ovviamente in automatico) avvisare tutti gli host nella LAN che si sta disconnettendo così
+       lo possono togliere dalla lista
