@@ -5,73 +5,163 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.Iterator;
 import java.util.List;
+
+import app.App;
 
 import com.google.common.collect.HashBiMap;
 
 public class ChatManager {
-	
+
 	private static ChatManager instance;
 	private Server server;
-	private BufferedReader nick_file_read;
-	private BufferedWriter nick_file_write;
-	private HashBiMap<String, InetSocketAddress> nick_address;
-	private String separator = " $$$ ";
-	private int nick_number = 0;
+	private Scan scan;
+	private HashBiMap<String, String> nick_address;
 	private List<Message> chat_now;
-	
+	private String my_nick = "Vale";
+	private App app;
+
+	/********** getInstance() **********/
+	/**
+	   @return returns the instance of ChatManager, following the design pattern of Singleton we will have just one ChatManager object
+	 */
 	public static ChatManager getInstance() {
 		if (instance == null)
 			instance = new ChatManager();
 		return instance;
 	}
-	
+
+	/********** ChatManager() ***********/
+	/**
+	   @brief It's just the constructor of this class
+	 */
 	private ChatManager() {
 		nick_address = HashBiMap.create();
 	}
 
-	public void startServer() throws UnknownHostException, IOException {
-		server = Server.getInstance();
-		server.start();		
+	/********** startServer() **********/
+	/**
+	   @brief instantiates the server and starts it as a new thread
+	 */
+	public void startServer() {
+		app = App.getInstance();
+		try {
+			server = Server.getInstance();
+		} catch (IOException e) {
+			System.err.println("Error while starting the Server");
+			e.printStackTrace();
+		}
+		server.start();
 		System.out.println("startServer() done");
 	}
 	
+	/********** startServer() **********/
+	/**
+	   @brief instantiates the net-scanner and starts it as a new thread
+	 */
+	public void startScan() {
+		scan = Scan.getInstance();
+		scan.start();
+		System.out.println("startScan() done");
+	}
+	
+	public String getMyNick() {
+		return my_nick;
+	}
+	
+	/********** addNickAddress() **********/
+	/**
+	   @brief Adds a couple nick-address to the map
+	   @param nick is the nick I want to add
+	   @param address is the address I want to add
+	 */
+	public void addNickAddress(String nick, String address) {
+		nick_address.put(nick, address);
+		app.setHosts(getHosts());
+	}
+
+	/********** getAddress() **********/
+	/**
+	   @brief Searches in the map and gives back the address associated to a nickname
+	   @param nick is the nick of which I want to find the address
+	   @return is the address I found
+	 */
 	public String getAddress(String nick) {
-		String addr = nick_address.get(nick).toString();
+		String addr = nick_address.get(nick);
 		System.out.println("getAddress(" + nick + ") done");
-		return addr.substring(addr.lastIndexOf("/")+1);
-		 // InetSocketAddress are represented with a string like Blast/127.0.1.1:25022
+		return addr;
 	}
 	
-	public String getNick(String address, int port) throws Throwable {
-		if (!nick_address.containsValue(new InetSocketAddress(address, port)))
-			throw new Throwable("Address = " + address + ":" + port + ", not found");
+	/********** getNick() **********/
+	/**
+	   @brief Searches in the map and gives back the nickname associated to an address
+	   @param address is the address of which I want to find the nickname
+	   @return is the nickname I found
+	 */
+	public String getNick(String address) {
+		if (!nick_address.containsValue(address))
+			System.err.println("Address: " + address + " not found");
 		System.out.println("getNick(" + address + ") done");
-		return nick_address.inverse().get(new InetSocketAddress(address, port));
+		return nick_address.inverse().get(address);
 	}
 	
-	@SuppressWarnings("null")
+	public List<String> getHosts() {
+		List<String> list = new ArrayList<>();
+		if (!nick_address.isEmpty())
+			list.addAll(nick_address.keySet());
+		return list;
+	}
+	
+	/********** timestamp() **********/
+	/**
+	   @brief It just builds a string with current time in this format [dd/MM/yyyy hh:mm:ss]
+	 * @return is the string mentioned above
+	 */
+	private String timestamp() {
+		Calendar now = Calendar.getInstance();
+		String day = "";
+		if (now.get(Calendar.DAY_OF_MONTH) < 10)
+			day = "0";
+		day = day + now.get(Calendar.DAY_OF_MONTH);
+		String month = "";
+		if (now.get(Calendar.MONTH) < 10)
+			month = "0";
+		month = month + now.get(Calendar.MONTH);
+		String year = "" + now.get(Calendar.YEAR);
+		String hours = "";
+		if (now.get(Calendar.HOUR_OF_DAY) < 10)
+			hours = "0";
+		hours = hours + now.get(Calendar.HOUR_OF_DAY); 
+		String minutes = "";
+		if (now.get(Calendar.MINUTE) < 10)
+			minutes = "0";
+		minutes = minutes + now.get(Calendar.MINUTE);
+		String seconds = "";
+		if (now.get(Calendar.SECOND) < 10)
+			seconds = "0";
+		seconds = seconds + now.get(Calendar.SECOND);
+		return "[" + day + "/" + month + "/" + year + " " + hours + ":" + minutes + ":" + seconds + "]";
+	}
+
+	/********** openChat() **********/
+	/**
+	   @brief Loads all messages from the chat file associated to a nickname and gives back a List of these Messages
+	   @param nick is the nick mentioned above
+	   @return is the List of Messages loaded from the chat file or and empty ArrayList  
+	 */
+    @SuppressWarnings("null")
 	public List<Message> openChat(String nick) {
-		File chat;
-		try {
-			chat = new File("chats/" + nick_address.get(nick).getHostString() + ":" + nick_address.get(nick).getPort() + ".txt"); //TODO cambia con nickname.txt invece che indirizzo:porta
-		} catch (NullPointerException e) { // non si conosce un nick per quell'indirizzo
-			chat = new File("chats/" + nick + ".txt");
-		}
+		File chat = new File("chats/" + nick + ".txt");
 		chat_now = new ArrayList<Message>();
 		String line;
 		Boolean type = null; //0 means received, 1 means sent
-		Date date = null;
+		String date = null;
 		String message = null;
 		if (chat.exists()) {
 			try {
@@ -83,10 +173,7 @@ public class ChatManager {
 					if (line.charAt(0) == 'R') {
 						type = false;
 					}
-					date = new Date(new GregorianCalendar(Integer.parseInt(line.substring(8, 12)),
-							Integer.parseInt(line.substring(5, 7)), Integer.parseInt(line.substring(2, 4)),
-							Integer.parseInt(line.substring(13, 15)), Integer.parseInt(line.substring(16, 18)),
-							Integer.parseInt(line.substring(19, 21))).getTimeInMillis()); // parses date from S[gg/mm/aaaa hh:mm:ss]
+					date = line.substring(1, 21);
 					message = line.substring(22);
 //					System.out.println("" + date);
 //					System.out.println("" + message);
@@ -98,121 +185,105 @@ public class ChatManager {
 				}
 				read_chat.close();
 			} catch (IOException e1) {
+				System.out.println("Error while loading the chat");
 				e1.printStackTrace();
-				//TODO				
 			}
 		}
 		else {
 			try {
 				chat.createNewFile();
 			} catch (IOException e) {
+				System.err.println("Error while creating a new chat file");
 				e.printStackTrace();
-				//TODO
 			}
 		}
-		System.out.println("openChat(" + nick + ") done"); 
+		System.out.println("openChat(" + nick + ") done");
 		return chat_now;
 	}
-	
-	public String[] getChats() {
-		//TODO controlla LAN e invia a tutti tuo nickname, salva in chats solo quelli che ti rispondono
-		String[] chats;
-		for(int i = 0; i < chats.length; ++i) {
-			if (nick_address.containsValue(new InetSocketAddress(chats[i].getName(). // Se per quell'indirizzo c'è un nick mostro il nick
-					substring(0, chats[i].getName().lastIndexOf(":")),               // all'utente
-					Integer.parseInt(chats[i].getName().substring(chats[i].getName().lastIndexOf(":") + 1,
-					chats[i].getName().lastIndexOf(".")))))) {
-				result[i] = nick_address.inverse().get(new InetSocketAddress(chats[i].getName().
-					substring(0, chats[i].getName().lastIndexOf(":")),   
-					Integer.parseInt(chats[i].getName().substring(chats[i].getName().lastIndexOf(":") + 1, 
-					chats[i].getName().lastIndexOf("."))))); // il "." è per togliere il ".txt"
-			}
-			else // il pulsante della chat conterrà indirizzo:porta visto che non c'è un nick associato
-				result[i] = chats[i].getName().substring(0, chats[i].getName().lastIndexOf(".")); // il "." è per togliere il ".txt"
-			System.out.println(result[i]);
+
+    /********* send() **********/
+    /**
+       @brief This method sends a message and saves it into the chat file
+       @param nick is the recipient
+       @param message is the message to be sent
+     */
+	public void send(String nick, String message) {
+		byte[] buff = message.getBytes(); // TODO add encrypt
+		String address = nick_address.get(nick);
+		//System.out.println("buff = " + buff + ", address = " + address);
+		DatagramPacket packet = new DatagramPacket(buff, buff.length, new InetSocketAddress(address, server.getPort()));
+		DatagramSocket sock = null;
+		try {
+			sock = new DatagramSocket(); //TODO COSA FARE SE INVIO NON RIESCE? E NEL CASO STIA CERCANDO DI INVIARE IL MIO NICK (QUINDI UTENTE NON LO SA)?
+			sock.send(packet);		
+			BufferedWriter chat_writer;
+			String timestamp = timestamp();
+			try {
+				chat_writer = new BufferedWriter(new FileWriter("chats/" + nick + ".txt", true));
+				chat_writer.write("S" + timestamp + message + "\n");
+				chat_writer.close();
+			} catch (IOException e) {
+				System.err.println("Error while saving message sent in chat file");
+				e.printStackTrace();
+			}    
+			chat_now.add(new Message(timestamp, message, true));
+		} catch (IOException e) {
+			System.err.println("Error while sending a message");
+			e.printStackTrace();
+			sock.close();
 		}
-		System.out.println("getChats() done");
-		return result;
+		sock.close();
+		System.out.println("send(" + nick + ", " + message + ") done");
 	}
 	
-	public void send(String nick, String message) throws Throwable {
-		if (!nick_address.containsKey(nick))
-			throw new Throwable("Nickname \"" + nick + "\" not found");
-		send(nick_address.get(nick).getHostString(), nick_address.get(nick).getPort(), message);
+	public void sendIP(String ip, String message) {
+		byte[] buff = message.getBytes();
+		//System.out.println("buff = " + buff + ", ip = " + ip);
+		DatagramPacket packet = new DatagramPacket(buff, buff.length, new InetSocketAddress(ip, server.getPort()));
+		DatagramSocket sock = null;
+		try {
+			sock = new DatagramSocket();
+			sock.send(packet);
+		} catch (IOException e) {
+			System.err.println("Error while sendingIP a message");
+			e.printStackTrace();
+			sock.close();
+		}
+		sock.close();
+		System.out.println("sendIP(" + ip + ", " + message + ") done");
 	}
 	
-	public void send(String address, int port, String message) throws IOException {//TODO add encrypt
-		byte[] buff = message.getBytes(); // TODO PUOI AGGIUNGERE CODIFICA
-		DatagramPacket packet = new DatagramPacket(buff, buff.length, new InetSocketAddress(address, port));
-		server.getSocket().send(packet);		
-		Calendar now = Calendar.getInstance();
-		String day = "";
-		if (now.get(Calendar.DAY_OF_MONTH) < 10)
-			day = "0";
-		day = day + now.get(Calendar.DAY_OF_MONTH);
-		String month = "";
-		if (now.get(Calendar.MONTH) < 10)
-			month = "0";
-		month = month + now.get(Calendar.MONTH);
-		String year = "" + now.get(Calendar.YEAR);
-		String hours = "";
-		if (now.get(Calendar.HOUR_OF_DAY) < 10)
-			hours = "0";
-		hours = hours + now.get(Calendar.HOUR_OF_DAY); 
-		String minutes = "";
-		if (now.get(Calendar.MINUTE) < 10)
-			minutes = "0";
-		minutes = minutes + now.get(Calendar.MINUTE);
-		String seconds = "";
-		if (now.get(Calendar.SECOND) < 10)
-			seconds = "0";
-		seconds = seconds + now.get(Calendar.SECOND);
-		BufferedWriter chat_writer = new BufferedWriter(new FileWriter("chats/" + address + ":" + port + ".txt", true)); //TODO salva con nickname.txt e non indirizzo-porta          
-		chat_writer.write("S[" + day + "/" + month + "/" + year + " " + hours + ":" + minutes + ":" + seconds + "]" + message + "\n");
-		chat_writer.close();
-		chat_now.add(new Message(new Date(now.getTimeInMillis()), message, true));
-		System.out.println("send(" + address + ", " + port + ", " + message + ") done");
-	}
-	
-	public void messageReceived(String message, String address, int port) throws IOException {//TODO add decrypt
-		Calendar now = Calendar.getInstance();
-		String day = "";
-		if (now.get(Calendar.DAY_OF_MONTH) < 10)
-			day = "0";
-		day = day + now.get(Calendar.DAY_OF_MONTH);
-		String month = "";
-		if (now.get(Calendar.MONTH) < 10)
-			month = "0";
-		month = month + now.get(Calendar.MONTH);
-		String year = "" + now.get(Calendar.YEAR);
-		String hours = "";
-		if (now.get(Calendar.HOUR_OF_DAY) < 10)
-			hours = "0";
-		hours = hours + now.get(Calendar.HOUR_OF_DAY); 
-		String minutes = "";
-		if (now.get(Calendar.MINUTE) < 10)
-			minutes = "0";
-		minutes = minutes + now.get(Calendar.MINUTE);
-		String seconds = "";
-		if (now.get(Calendar.SECOND) < 10)
-			seconds = "0";
-		seconds = seconds + now.get(Calendar.SECOND);
+	/********** messageReceived() **********/
+	/**
+	   @brief This method saves a message received into the chat file and warns the user he received a new message 
+	   @param message is the message received
+	   @param address is the sender
+	 */
+	public void messageReceived(String message, String address) {
 		BufferedWriter chat_writer;
-		chat_writer = new BufferedWriter(new FileWriter("chats/" + address + ":" + port + ".txt", true));  //TODO salva con nickname.txt e non indirizzo-porta
-		chat_writer.write("R[" + day + "/" + month + "/" + year + " " + hours + ":" + minutes + ":" + seconds + "]" + message);
-		chat_writer.close();
-		chat_now.add(new Message(new Date(now.getTimeInMillis()), message, false));
+		String timestamp = timestamp();
+		String nick = nick_address.inverse().get(address); //TODO COSA FARE SE NON CONOSCO QUEL NICK? È POSSIBILE CHE QUALCUNO MI PARLI E IO NON CONOSCA IL SUO NICK?
+		try {
+			chat_writer = new BufferedWriter(new FileWriter("chats/" + nick + ".txt", true));
+			chat_writer.write("R" + timestamp + message);
+			chat_writer.close();
+		} catch (IOException e) {
+			System.err.println("Error while saving message received in chat file");
+			e.printStackTrace();
+		}
+		chat_now.add(new Message(timestamp, message, false));
 		Notify();
 		repaintChats();
-		System.err.println("messageReceived(" + message + ", " + address + ", " + port + ")");
-		//TODO
+		System.err.println("messageReceived(" + message + ", " + address + ")");
 	}
 	
+	// NOT YET IMPLEMENTED
 	private void repaintChats() {
 		//TODO repaint chat list adding highlighting the message received right now
 		System.err.println("repaintChats()");
 	}
-	
+
+	// NOT YET IMPLEMENTED
 	private void Notify() {
 		//TODO
 		System.err.println("Notify()");

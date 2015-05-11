@@ -17,6 +17,10 @@ public class Size {
 	private Dimension button_inside = new Dimension(new_chat.width/3, new_chat.height/3);
 	private Dimension add_nick = new Dimension(jframe.width/2, jframe.height/2);
 
+	/********** getInstance() **********/
+	/**
+	   @return returns the instance of Size, following the design pattern of Singleton we will have just one Size object
+	 */
 	public static Size getInstance() {
 		if (instance == null)
 			instance = new Size();
@@ -63,9 +67,6 @@ public class Size {
 		return button_inside;
 	}
 
-	/**
-	 * @return the add_nick
-	 */
 	public Dimension getAdd_nick() {
 		return add_nick;
 	}
