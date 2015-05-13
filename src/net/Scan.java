@@ -60,7 +60,7 @@ public class Scan extends Thread implements Runnable {
 		public void scan() {
 			String myIP = server.getMyIP();
 			String net = myIP.substring(0, myIP.lastIndexOf(".")) + ".0/24";
-			//System.out.println(net);
+			System.out.println(net);
 			try {
 				Process process = Runtime.getRuntime().exec("nmap " + net);
 				InputStream in=process.getInputStream();
@@ -73,7 +73,7 @@ public class Scan extends Thread implements Runnable {
 					int index = line.indexOf("Nmap scan report for ");
 					if (index != -1) {
 						String ip = line.substring(index + 21);
-						//System.out.println("IP: " + ip);
+						System.out.println("IP: " + ip);
 						hosts.add(ip);
 					}
 				}

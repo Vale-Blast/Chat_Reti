@@ -5,7 +5,7 @@ Attenzione a:
     3) Messaggi sono trasmessi in chiaro, sarebbe utile iviarsi chiave pubblica
     4) Aggiungere delle impostazioni per utente che può modficare:
            - Time to sleep del thread scan
-           - buff length  per ricezione
+           - buff length per ricezione
 
     5) Utente non è sicuro che messaggio sia stato inviato correttamente e che sia arrivato, potremmo fare una piccola risposta automatica
        come messaggio speciale "##RECEIVED" così so che l'altro l'ha ricevuto
