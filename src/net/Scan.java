@@ -12,7 +12,16 @@ public class Scan extends Thread implements Runnable {
 		private static Scan instance;
 		private Server server;
 		private ChatManager chat_manger;
+		private int sleep = 15;
 		
+		public int getSleep() {
+			return sleep;
+		}
+
+		public void setSleep(int sleep) {
+			this.sleep = sleep;
+		}
+
 		/********** getInstance() **********/
 		/**
 		   @return returns the instance of Scan, following the design pattern of Singleton we will have just one Scan object
@@ -46,7 +55,7 @@ public class Scan extends Thread implements Runnable {
 			while (true) {
 				try {
 					scan(); //TODO OGNI TANTO DOBBIAMO SVUOTARE LA LISTA DI HOST PER EVITARE DI CONSERVARNE ALCUNI HOST NON RAGGIUNGIBILI O CHE SI SONO DISCONNESSI
-					sleep(15 * 1000); 
+					sleep(sleep * 1000); 
 				} catch (InterruptedException e) {
 					System.out.println("Interrup network scanning");
 				}

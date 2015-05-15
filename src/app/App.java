@@ -5,21 +5,27 @@ import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.net.UnknownHostException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import net.ChatManager;
 import net.Message;
 import net.Scan;
+import net.Server;
 
 public class App implements Runnable {
 	
@@ -27,6 +33,7 @@ public class App implements Runnable {
 
 	private Size size;
 	private Scan scan;
+	private Server server;
 	private ChatManager chat_manager;
 	private List<String> hosts;
 	public HashSet<String> senders; // a Set of nicks who sent me an unread message
@@ -68,6 +75,12 @@ public class App implements Runnable {
 		scan = Scan.getInstance();
 		chat_manager.startServer();
 		chat_manager.startScan();
+		try {
+			server = Server.getInstance();
+		} catch (IOException e) {
+			System.err.println("Error while starting the server");
+			e.printStackTrace();
+		}
 		createGUI();		
 	}
 
@@ -96,7 +109,50 @@ public class App implements Runnable {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				System.err.println("Settings button clicked, NOT YET IMPLEMENTED");
+				final JFrame settings = new JFrame("Settings");
+				settings.setLayout(null);
+				int hOffset = size.getSettings().width/10;
+				JLabel tts_label = new JLabel("Time to Sleep between net scans:");
+				int vpadd = size.getSettings().height/20;
+				tts_label.setBounds(hOffset, vpadd, size.getSettings().width*4/5, size.getSettings().height/10);
+				final JTextField tts_field = new JTextField("" + scan.getSleep());
+				tts_field.setBounds(hOffset, vpadd*3/2 + size.getSettings().height/10, size.getSettings().width*4/5, size.getSettings().height/10);
+				JLabel buff_label = new JLabel("Max Buffer length:");
+				buff_label.setBounds(hOffset, vpadd*5/2 + size.getSettings().height/5, size.getSettings().width*4/5, size.getSettings().height/10);
+				final JTextField buff_field = new JTextField("" + server.getBuff_size());
+				buff_field.setBounds(hOffset, vpadd*3 + size.getSettings().height*3/10, size.getSettings().width*4/5, size.getSettings().height/10);
+				JButton ok = new JButton("Ok");
+				JButton cancel = new JButton("Cancel");
+				ok.addActionListener(new ActionListener() {
+
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						if (tts_field.getText().length() > 0 && buff_field.getText().length() > 0) {
+							scan.setSleep(Integer.parseInt(tts_field.getText()));
+							server.setBuff_size(Integer.parseInt(buff_field.getText()));
+							settings.dispose();
+						}
+					}
+				});
+				cancel.addActionListener(new ActionListener() {
+
+					@Override
+					public void actionPerformed(ActionEvent arg0) {
+						settings.dispose();						
+					}
+				});
+				settings.add(tts_label);
+				settings.add(tts_field);
+				settings.add(buff_label);
+				settings.add(buff_field);
+				settings.add(ok);
+				settings.add(cancel);
+				settings.setResizable(false);
+				int padd = size.getSettings().width/15;
+				settings.setBounds(size.getScreen_offset().width, size.getScreen_offset().height, size.getSettings().width, size.getSettings().height);
+				ok.setBounds(size.getSettings().width/2 - size.getButton_inside().width - padd, vpadd*5 + size.getSettings().height*2/5, size.getButton_inside().width, size.getButton_inside().height);
+				cancel.setBounds(size.getSettings().width/2 + padd, vpadd*5 + size.getSettings().height*2/5, size.getButton_inside().width, size.getButton_inside().height);
+				settings.setVisible(true);
 			}
 		});
 		JButton exit = new JButton(new ImageIcon(new ImageIcon("resources/exit.png")

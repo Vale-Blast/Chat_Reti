@@ -4,8 +4,6 @@ Attenzione a:
     2) File contenenti chat sono memorizzati come "nick.txt" perciò nel caso due utenti abbiano lo stesso nick ci sarà un accavallamento
     3) Messaggi sono trasmessi in chiaro, sarebbe utile iviarsi chiave pubblica
     4) Aggiungere delle impostazioni per utente che può modficare:
-           - Time to sleep del thread scan
-           - buff length per ricezione
            - suono notifica nuovo msg
 
     5) Utente non è sicuro che messaggio sia stato inviato correttamente e che sia arrivato, potremmo fare una piccola risposta automatica
@@ -20,3 +18,4 @@ Attenzione a:
        lo possono togliere dalla lista
    11) Utente oltre a suono non viene notificato del nuovo msg arrivato per esempio con pulsante colorato di rosso sulla sinistra
    12) Ogni 3-4 scan dovremmo svuotare la mappa in modo da non conservare inutilmente host non più attivi nella mappa
+   13) Nel file .chat potremmo anche mettere per esempio le impostazioni settate sopra e il file viene caricato all'avvio

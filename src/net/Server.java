@@ -101,4 +101,12 @@ public class Server extends Thread implements Runnable {
 	public String getMyIP() {
 		return myIP;
 	}
+
+	public int getBuff_size() {
+		return buff_size;
+	}
+
+	public void setBuff_size(int buff_size) {
+		this.buff_size = buff_size;
+	}
 }
