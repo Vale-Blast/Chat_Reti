@@ -15,6 +15,8 @@ import javax.swing.JLabel;
 import javax.swing.JTextField;
 
 import net.ChatManager;
+import net.Scan;
+import net.Server;
 
 public class Login {
 
@@ -35,6 +37,7 @@ public class Login {
 
 	public boolean getNick() {
 		File nick = new File(".chat");
+		boolean ret = false;
 		if (!nick.exists())
 			return false;
 		BufferedReader read_nick;
@@ -46,15 +49,20 @@ public class Login {
 				index = line.indexOf("NICK: ");
 				if (index != -1) {
 					chat_manager.setNick(line.substring(6));
-					read_nick.close();
-					return true;
+					ret = true;
 				}
+				index = line.indexOf("TTS: ");
+				if (index != -1) 
+					Scan.getInstance().setSleep(Integer.parseInt(line.substring(5)));
+				index = line.indexOf("BUFF: ");
+				if (index != -1)
+					Server.getInstance().setBuff_size(Integer.parseInt(line.substring(6)));
 			}
 			read_nick.close();
 		} catch(IOException e) {
 			return false;
 		}
-		return false;
+		return ret;
 	}
 
 	boolean cont = true;

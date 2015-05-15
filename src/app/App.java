@@ -5,15 +5,15 @@ import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.net.UnknownHostException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -22,6 +22,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
+
 import net.ChatManager;
 import net.Message;
 import net.Scan;
@@ -130,6 +131,17 @@ public class App implements Runnable {
 						if (tts_field.getText().length() > 0 && buff_field.getText().length() > 0) {
 							scan.setSleep(Integer.parseInt(tts_field.getText()));
 							server.setBuff_size(Integer.parseInt(buff_field.getText()));
+							BufferedWriter sett_writer;
+							try {
+								sett_writer = new BufferedWriter(new FileWriter(".chat", false));
+								sett_writer.write("NICK: " + chat_manager.getMyNick() + "\n");
+								sett_writer.write("TTS: " + scan.getSleep() + "\n");
+								sett_writer.write("BUFF: " + server.getBuff_size() + "\n");
+								sett_writer.close();
+							} catch (IOException e1) {
+								System.err.println("Error while saving settings to file");
+								e1.printStackTrace();
+							}
 							settings.dispose();
 						}
 					}
