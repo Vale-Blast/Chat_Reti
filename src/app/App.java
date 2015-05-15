@@ -5,6 +5,7 @@ import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -28,12 +29,13 @@ public class App implements Runnable {
 	private Scan scan;
 	private ChatManager chat_manager;
 	private List<String> hosts;
+	public HashSet<String> senders; // a Set of nicks who sent me an unread message
 	private JPanel messages_panel;
 	private JFrame frame;
 	private JPanel chat_panel = new JPanel();
 	private JButton send;
 	private JButton attach;
-	private String chat_now; // The nick I'm chatting now with
+	private String chat_now = ""; // The nick I'm chatting now with
 	
 	/********** getInstance() **********/
 	/**
@@ -50,6 +52,7 @@ public class App implements Runnable {
 	   @brief It's just the constructor of this class, it instantiates objects size and chat_manager 
 	 */
 	private App() {
+		senders = new HashSet<>();
 		size = Size.getInstance();
 		chat_manager = ChatManager.getInstance();
 		messages_panel = new JPanel(); //TODO Per ora è vuoto ma in futuro potremmo scrivere qualcosa tipo "apri la chat"
@@ -66,10 +69,6 @@ public class App implements Runnable {
 		chat_manager.startServer();
 		chat_manager.startScan();
 		createGUI();		
-	}
-	
-	public void setHosts(List<String> hs) {
-		hosts = hs;
 	}
 
 	/********** createGUI() ***********/
@@ -177,6 +176,8 @@ public class App implements Runnable {
 	public void openChat(String nick) {
 		chat_now = nick;
 		List<Message> messages = chat_manager.openChat(nick);
+		senders.remove(nick);
+		ChatList();
 		Iterator<Message> iterator = messages.iterator();
 		JTextArea text_chat = new JTextArea();
 		text_chat.setEditable(false);
@@ -212,7 +213,7 @@ public class App implements Runnable {
 	/**
 	   @brief Organizes the list of chats on the left, uses all hosts in my LAN
 	 */
-	private void ChatList() {
+	public void ChatList() {
 		hosts = chat_manager.getHosts();
 		chat_panel.removeAll();
 		chat_panel.setLayout(new GridLayout(hosts.size(), 1));
@@ -221,7 +222,14 @@ public class App implements Runnable {
 		int i = 0;
 		while (iter.hasNext()) {
 			final String nick = iter.next();
+			System.out.println("Host: " + nick);
 			chat[i] = new JButton(nick);
+			if (senders.contains(nick)) {
+				if (nick == chat_now)
+					openChat(nick);
+				else
+					chat[i].setBackground(Color.red); // Red color if this nick sent me unread messages but I'm not talking with him
+			}
 			chat[i].addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {	

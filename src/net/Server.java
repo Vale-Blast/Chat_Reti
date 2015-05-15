@@ -71,11 +71,17 @@ public class Server extends Thread implements Runnable {
 				// add decrypt
 				String message = new String(packet.getData(), 0, packet.getLength());
 				String ip = packet.getAddress().getHostAddress();
+				System.out.println("Message \"" + message + "\" received from: " + ip);
 				if (message.indexOf("##NICK:") != -1) {
-					String nick = message.substring(7, message.lastIndexOf("##"));
-					chat_manager.addNickAddress(nick, ip);
-					if (message.lastIndexOf("#$#") == -1)  // #$# compare solo nella risposta a un nick, non nell'invio di un nick
+					if (message.lastIndexOf("#$#") == -1) { // #$# compare solo nella risposta a un nick, non nell'invio di un nick
 						chat_manager.sendIP(ip, "##NICK:" + chat_manager.getMyNick() + "#$#");
+						String nick = message.substring(7, message.lastIndexOf("##"));
+						chat_manager.addNickAddress(nick, ip);
+					}
+					else {
+						String nick = message.substring(7, message.lastIndexOf("#$#"));
+						chat_manager.addNickAddress(nick, ip);
+					}
 				}
 				else {
 					System.out.println("Messagio ricevuto: " + message);

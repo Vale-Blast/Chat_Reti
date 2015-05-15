@@ -6,6 +6,7 @@ Attenzione a:
     4) Aggiungere delle impostazioni per utente che può modficare:
            - Time to sleep del thread scan
            - buff length per ricezione
+           - suono notifica nuovo msg
 
     5) Utente non è sicuro che messaggio sia stato inviato correttamente e che sia arrivato, potremmo fare una piccola risposta automatica
        come messaggio speciale "##RECEIVED" così so che l'altro l'ha ricevuto
@@ -17,3 +18,5 @@ Attenzione a:
     9) Migliorare interfaccia grafica dei messaggi creando nuvolette separate
    10) Alla disconnessione un utente dovrebbe (ovviamente in automatico) avvisare tutti gli host nella LAN che si sta disconnettendo così
        lo possono togliere dalla lista
+   11) Utente oltre a suono non viene notificato del nuovo msg arrivato per esempio con pulsante colorato di rosso sulla sinistra
+   12) Ogni 3-4 scan dovremmo svuotare la mappa in modo da non conservare inutilmente host non più attivi nella mappa

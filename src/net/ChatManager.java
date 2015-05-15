@@ -13,6 +13,12 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
+
 import app.App;
 
 import com.google.common.collect.HashBiMap;
@@ -24,8 +30,14 @@ public class ChatManager {
 	private Scan scan;
 	private HashBiMap<String, String> nick_address;
 	private List<Message> chat_now;
-	private String my_nick = "Vale";
+	private String my_nick;
 	private App app;
+//	private AudioInputStream audio;
+//	private Clip clip;
+	
+	public void setNick(String nick) {
+		my_nick = nick;
+	}
 
 	/********** getInstance() **********/
 	/**
@@ -43,6 +55,14 @@ public class ChatManager {
 	 */
 	private ChatManager() {
 		nick_address = HashBiMap.create();
+//		try {
+//			audio = AudioSystem.getAudioInputStream(new File("resources/Din Don.wav"));
+//			clip = AudioSystem.getClip();
+//			clip.open(audio);
+//		} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+//			System.err.println("Error while loading audio file");
+//			e.printStackTrace();
+//		}
 	}
 
 	/********** startServer() **********/
@@ -83,7 +103,8 @@ public class ChatManager {
 	 */
 	public void addNickAddress(String nick, String address) {
 		nick_address.put(nick, address);
-		app.setHosts(getHosts());
+		app.ChatList();
+		System.out.println("addNickAddress(" + nick + ", " + address + ") done");
 	}
 
 	/********** getAddress() **********/
@@ -265,27 +286,15 @@ public class ChatManager {
 		String nick = nick_address.inverse().get(address); //TODO COSA FARE SE NON CONOSCO QUEL NICK? È POSSIBILE CHE QUALCUNO MI PARLI E IO NON CONOSCA IL SUO NICK?
 		try {
 			chat_writer = new BufferedWriter(new FileWriter("chats/" + nick + ".txt", true));
-			chat_writer.write("R" + timestamp + message);
+			chat_writer.write("R" + timestamp + message + "\n");
 			chat_writer.close();
 		} catch (IOException e) {
 			System.err.println("Error while saving message received in chat file");
 			e.printStackTrace();
 		}
-		chat_now.add(new Message(timestamp, message, false));
-		Notify();
-		repaintChats();
+		app.senders.add(nick);
+		app.ChatList();
+		//clip.loop(1);
 		System.err.println("messageReceived(" + message + ", " + address + ")");
-	}
-	
-	// NOT YET IMPLEMENTED
-	private void repaintChats() {
-		//TODO repaint chat list adding highlighting the message received right now
-		System.err.println("repaintChats()");
-	}
-
-	// NOT YET IMPLEMENTED
-	private void Notify() {
-		//TODO
-		System.err.println("Notify()");
 	}
 }
