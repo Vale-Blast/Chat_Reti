@@ -9,6 +9,9 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
 
+import app.App;
+import app.Encryption;
+
 
 public class Server extends Thread implements Runnable {
 	
@@ -18,6 +21,8 @@ public class Server extends Thread implements Runnable {
 	private DatagramSocket socket;
 	private ChatManager chat_manager;
 	private String myIP;
+	private Encryption encryption;
+	private App app;
 	
 	/********** getInstance() **********/
 	/**
@@ -63,29 +68,42 @@ public class Server extends Thread implements Runnable {
 	public void run() {
 		byte[] buff;
 		DatagramPacket packet;
+		app = App.getInstance();
+		encryption = Encryption.getInstance();
 		while (true) {
-			buff = new byte[buff_size];
+			buff = new byte[buff_size]; //TODO vedi note.txt 14)
 			packet = new DatagramPacket(buff, buff.length);
 			try {
 				socket.receive(packet); // receive
-				// add decrypt
-				String message = new String(packet.getData(), 0, packet.getLength());
 				String ip = packet.getAddress().getHostAddress();
-				System.out.println("Message \"" + message + "\" received from: " + ip);
-				if (message.indexOf("##NICK:") != -1) {
-					if (message.lastIndexOf("#$#") == -1) { // #$# compare solo nella risposta a un nick, non nell'invio di un nick
-						chat_manager.sendIP(ip, "##NICK:" + chat_manager.getMyNick() + "#$#");
-						String nick = message.substring(7, message.lastIndexOf("##"));
-						chat_manager.addNickAddress(nick, ip);
+				String message = encryption.decrypt(buff);
+				if (!message.startsWith("#")) // It means I recived an attachment
+					chat_manager.attachReceived(buff, ip);
+				else { // Not an attachment
+					System.out.println("Message \"" + message + "\" received from: " + ip);
+					if (message.startsWith("##")) { // It's a special message
+						switch(message.substring(2, 6)) {
+						case "NICK" : {// Nick messages
+							if (message.lastIndexOf("#$#") == -1) // #$# is present only when he answers to another nick message, this means he already knows my nick
+								chat_manager.sendIP(ip, "##NICK:" + chat_manager.getMyNick() + "#$#");
+							String nick = message.substring(7, message.lastIndexOf("##"));
+							chat_manager.addNickAddress(nick, ip);
+						} break;
+						case "RCVD" : {// Ack messages
+							String m = message.substring(11, message.lastIndexOf("##"));
+							chat_manager.ack(m, ip);
+						} break;
+						case "DOWN" : {// Sender is shutting down
+							app.remove(ip);
+						} break;
+						}
 					}
-					else {
-						String nick = message.substring(7, message.lastIndexOf("#$#"));
-						chat_manager.addNickAddress(nick, ip);
+					else { // a normal message (no special, no atachment)
+						message = message.substring(1); // removes the # 
+						System.out.println("Messagio ricevuto: " + message);
+						chat_manager.sendIP(ip, "##RCVD:" + message + "##"); // Sending ack to sender
+						chat_manager.messageReceived(message, ip);
 					}
-				}
-				else {
-					System.out.println("Messagio ricevuto: " + message);
-					chat_manager.messageReceived(message, ip);
 				}
 			} catch (IOException e) {
 				System.err.println("Error while receiving");

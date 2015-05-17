@@ -1,21 +1,33 @@
 Attenzione a:
 
-    1) File contenenti chat sono in chiaro sul PC e non sono protetti
-    2) File contenenti chat sono memorizzati come "nick.txt" perciò nel caso due utenti abbiano lo stesso nick ci sarà un accavallamento
-    3) Messaggi sono trasmessi in chiaro, sarebbe utile iviarsi chiave pubblica
+    1) File contenenti chat sono in chiaro sul PC e non sono protetti -- però doverli crittografare e decrittografare ogni volta che
+                                                                         faccio una openChat() (quindi ogni volta che clicco su un
+                                                                         pulsante sulla sinistra) può essere molto costoso
+
+    2) File contenenti chat sono memorizzati come "nick.txt" perciò  -- unica soluzione sarebbe mettere un server centrale che gestisce
+       nel caso due utenti abbiano lo stesso nick ci sarà un            nickname o che tiene i messaggi e ogni utente fa una richiesta al
+       accavallamento                                                   server per sapere se ci sono messaggi nuovi
+
+    3) Al lancio dell'applicazione sarebbe corretto controllare se tutte le directory che gli servono sono presenti con getParent... e nel
+       caso crearle
+
     4) Aggiungere delle impostazioni per utente che può modficare:
            - suono notifica nuovo msg
 
-    5) Utente non è sicuro che messaggio sia stato inviato correttamente e che sia arrivato, potremmo fare una piccola risposta automatica
-       come messaggio speciale "##RECEIVED" così so che l'altro l'ha ricevuto
+    5) Tutte funzioni void potrebbero diventare bool in modo che il chiamante sappia se è andato tutto ok o no
 
     6) Utente non può personalizzare lo sfondo delle chat
+
     7) Non ci sono controlli particolari sugli spazi, se ci sono solo spazi non viene inviato nulla ma se l'utente scrive "   a    " e
        invia vengono inviati anche tutti gli spazi
+
     8) Utente non può visualizzare singole informazioni di ogni messaggio nel dettaglio (timestamp invio/ricezione/lettura e simili)
+
     9) Migliorare interfaccia grafica dei messaggi creando nuvolette separate
-   10) Alla disconnessione un utente dovrebbe (ovviamente in automatico) avvisare tutti gli host nella LAN che si sta disconnettendo così
-       lo possono togliere dalla lista
-   11) Utente oltre a suono non viene notificato del nuovo msg arrivato per esempio con pulsante colorato di rosso sulla sinistra
+
+   11) migliorare pulsante colorato di rosso sulla sinistra quando si riceve un nuovo messaggio
+
    12) Ogni 3-4 scan dovremmo svuotare la mappa in modo da non conservare inutilmente host non più attivi nella mappa
-   13) Nel file .chat potremmo anche mettere per esempio le impostazioni settate sopra e il file viene caricato all'avvio
+
+   14) quando mando gli allegati come faccio a sapere il buff_length di chi dovrà ricevere in modo da mandargli il file in un unico
+       datagramma?

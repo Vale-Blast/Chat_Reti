@@ -6,6 +6,7 @@ import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashSet;
@@ -14,6 +15,7 @@ import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -65,6 +67,13 @@ public class App implements Runnable {
 		chat_manager = ChatManager.getInstance();
 		messages_panel = new JPanel(); //TODO Per ora è vuoto ma in futuro potremmo scrivere qualcosa tipo "apri la chat"
 		messages_panel.setBounds(size.getChats().width, size.getToolbar().height, size.getMessages().width, size.getMessages().height);
+	}
+	
+	public void remove(String ip) {
+		if (ip == "ALL")
+			hosts.clear();
+		else
+			hosts.remove(ip);
 	}
 
 	/********** run() ***********/
@@ -122,6 +131,10 @@ public class App implements Runnable {
 				buff_label.setBounds(hOffset, vpadd*5/2 + size.getSettings().height/5, size.getSettings().width*4/5, size.getSettings().height/10);
 				final JTextField buff_field = new JTextField("" + server.getBuff_size());
 				buff_field.setBounds(hOffset, vpadd*3 + size.getSettings().height*3/10, size.getSettings().width*4/5, size.getSettings().height/10);
+				JLabel empty_label = new JLabel("Number of iterations to empty hosts list:");
+				empty_label.setBounds(hOffset, vpadd*4 + size.getSettings().height*2/5, size.getSettings().width*4/5, size.getSettings().height/10);
+				final JTextField empty_field = new JTextField("" + scan.getEmpty());
+				empty_field.setBounds(hOffset, vpadd*9/2 + size.getSettings().height/2, size.getSettings().width*4/5, size.getSettings().height/10);
 				JButton ok = new JButton("Ok");
 				JButton cancel = new JButton("Cancel");
 				ok.addActionListener(new ActionListener() {
@@ -131,12 +144,14 @@ public class App implements Runnable {
 						if (tts_field.getText().length() > 0 && buff_field.getText().length() > 0) {
 							scan.setSleep(Integer.parseInt(tts_field.getText()));
 							server.setBuff_size(Integer.parseInt(buff_field.getText()));
+							scan.setEmpty(Integer.parseInt(empty_field.getText()));
 							BufferedWriter sett_writer;
 							try {
 								sett_writer = new BufferedWriter(new FileWriter(".chat", false));
 								sett_writer.write("NICK: " + chat_manager.getMyNick() + "\n");
-								sett_writer.write("TTS: " + scan.getSleep() + "\n");
+								sett_writer.write("TToS: " + scan.getSleep() + "\n");
 								sett_writer.write("BUFF: " + server.getBuff_size() + "\n");
+								sett_writer.write("EMPT: " + scan.getEmpty() + "\n");
 								sett_writer.close();
 							} catch (IOException e1) {
 								System.err.println("Error while saving settings to file");
@@ -157,13 +172,15 @@ public class App implements Runnable {
 				settings.add(tts_field);
 				settings.add(buff_label);
 				settings.add(buff_field);
+				settings.add(empty_label);
+				settings.add(empty_field);
 				settings.add(ok);
 				settings.add(cancel);
 				settings.setResizable(false);
 				int padd = size.getSettings().width/15;
-				settings.setBounds(size.getScreen_offset().width, size.getScreen_offset().height, size.getSettings().width, size.getSettings().height);
-				ok.setBounds(size.getSettings().width/2 - size.getButton_inside().width - padd, vpadd*5 + size.getSettings().height*2/5, size.getButton_inside().width, size.getButton_inside().height);
-				cancel.setBounds(size.getSettings().width/2 + padd, vpadd*5 + size.getSettings().height*2/5, size.getButton_inside().width, size.getButton_inside().height);
+				settings.setBounds(size.getScreen_offset().width, size.getScreen_offset().height, size.getSettings().width, (int) (size.getSettings().height*1.3));
+				ok.setBounds(size.getSettings().width/2 - size.getButton_inside().width - padd, vpadd*11/2 + size.getSettings().height*3/5, size.getButton_inside().width, size.getButton_inside().height);
+				cancel.setBounds(size.getSettings().width/2 + padd, vpadd*11/2 + size.getSettings().height*3/5, size.getButton_inside().width, size.getButton_inside().height);
 				settings.setVisible(true);
 			}
 		});
@@ -173,10 +190,7 @@ public class App implements Runnable {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				int reply = JOptionPane.showConfirmDialog(frame, "Do you really want to quit?",
-						"Confirm quit", JOptionPane.YES_NO_OPTION);
-				if (reply == JOptionPane.YES_OPTION)
-					System.exit(0);
+				exit();
 			}
 		});
 		toolbar.add(refresh);
@@ -214,7 +228,17 @@ public class App implements Runnable {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				System.err.println("attach called");
+				JFileChooser jfc = new JFileChooser();
+				jfc.showOpenDialog(frame);
+				System.out.println(jfc.getSelectedFile().getAbsolutePath());
+				try {
+					chat_manager.attach(jfc.getSelectedFile(), chat_now);
+					openChat(chat_now);
+					text.setText("");
+					ChatList();
+				} catch (FileNotFoundException e1) {
+					JOptionPane.showMessageDialog(frame, "FileNotFound" ,"File not Found, please check it and try again", JOptionPane.ERROR_MESSAGE);
+				}
 			}
 		});
 		JScrollPane chat_messages = new JScrollPane(messages_panel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -310,5 +334,19 @@ public class App implements Runnable {
 		chat_panel.validate();
 		frame.validate();
 		System.out.println("ChatList() done");
+	}
+	
+	/********** exit() **********/
+	/**
+	   @brief This method asks confirm yes/no, if you want to exit he broadcasts all hosts he's going to
+	          shut down
+	 */
+	private void exit() {
+		int reply = JOptionPane.showConfirmDialog(frame, "Do you really want to quit?",
+				"Confirm quit", JOptionPane.YES_NO_OPTION);
+		if (reply == JOptionPane.YES_OPTION) {
+			scan.broadcast(hosts, "##DOWN##");
+			System.exit(0);
+		}
 	}
 }

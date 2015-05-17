@@ -3,14 +3,20 @@ package net;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.sound.sampled.AudioInputStream;
@@ -18,22 +24,26 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.swing.JFileChooser;
 
 import app.App;
+import app.Encryption;
 
 import com.google.common.collect.HashBiMap;
 
 public class ChatManager {
 
+	private Encryption encryption;
 	private static ChatManager instance;
 	private Server server;
 	private Scan scan;
+	private HashMap<String, Integer> sending; // Map to keep track of message sent for which I haven't received an ACK yet
 	private HashBiMap<String, String> nick_address;
 	private List<Message> chat_now;
 	private String my_nick;
 	private App app;
-//	private AudioInputStream audio;
-//	private Clip clip;
+	private AudioInputStream audio;
+	private Clip clip;
 	
 	public void setNick(String nick) {
 		my_nick = nick;
@@ -55,14 +65,16 @@ public class ChatManager {
 	 */
 	private ChatManager() {
 		nick_address = HashBiMap.create();
-//		try {
-//			audio = AudioSystem.getAudioInputStream(new File("resources/Din Don.wav"));
-//			clip = AudioSystem.getClip();
-//			clip.open(audio);
-//		} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
-//			System.err.println("Error while loading audio file");
-//			e.printStackTrace();
-//		}
+		sending = new HashMap<>();
+		try {
+			audio = AudioSystem.getAudioInputStream(new File("resources/Din Don.wav"));
+			clip = AudioSystem.getClip();
+			clip.open(audio);
+		} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+			System.err.println("Error while loading audio file");
+			e.printStackTrace();
+		}
+		encryption = Encryption.getInstance();
 	}
 
 	/********** startServer() **********/
@@ -229,7 +241,7 @@ public class ChatManager {
        @param message is the message to be sent
      */
 	public void send(String nick, String message) {
-		byte[] buff = message.getBytes(); // TODO add encrypt
+		byte[] buff = encryption.encrypt("#" + message, ".keys/." + nick + ".txt");
 		String address = nick_address.get(nick);
 		//System.out.println("buff = " + buff + ", address = " + address);
 		DatagramPacket packet = new DatagramPacket(buff, buff.length, new InetSocketAddress(address, server.getPort()));
@@ -254,6 +266,12 @@ public class ChatManager {
 			sock.close();
 		}
 		sock.close();
+		if (sending.containsKey(nick + "-" + message)) {
+			Integer count = sending.remove(nick + "-" + message);
+			sending.put(nick + "-" + message, ++count);
+		}
+		else
+			sending.put(nick + "-" + message, 1);
 		System.out.println("send(" + nick + ", " + message + ") done");
 	}
 	
@@ -294,7 +312,113 @@ public class ChatManager {
 		}
 		app.senders.add(nick);
 		app.ChatList();
-		//clip.loop(1);
-		System.err.println("messageReceived(" + message + ", " + address + ")");
+		clip.loop(1);
+		System.out.println("messageReceived(" + message + ", " + address + ")");
 	}
+	
+	/********** ack() **********/
+	/**
+	   @brief Modifies sending HashMap when Server thread receives an ack
+	   @param address is the address from which I received an ack
+	   @param message is the message for which I received an ack
+	 */
+	public void ack(String message, String address) {
+		String nick = nick_address.inverse().get(address); //TODO COSA FARE SE NON CONOSCO QUEL NICK? È POSSIBILE CHE QUALCUNO MI PARLI E IO NON CONOSCA IL SUO NICK?
+		if(!sending.containsKey(nick + "-" + message)) //TODO POSSO ARRIVARE QUI? È POSSIBILE CHE RICEVA UN ACK MA IL MESSAGGIO NON SIA IN SENDING?
+			return;
+		Integer count = sending.remove(nick + "-" + message);
+		if (count > 1)
+			sending.put(nick + "-" + message, --count);
+		return;		
+	}
+	
+	/********** attach() **********/
+	/**
+	   @brief Sends a file
+	   @param file is the name of the file I want to send
+	   @param nick is the person I want to sent the file to
+	 * @throws FileNotFoundException 
+	 */
+	public void attach(File file, String nick) throws FileNotFoundException {
+		InputStream to_send = new FileInputStream(file);
+		byte buf[] = new byte[(int) file.length()]; //TODO VEDI note.txt 14) conversion it's okay because max_int in java is 2^31 and 2^31 B ==> 2 GB
+		try {
+			to_send.read(buf);
+			attachReceived(buf, "Fake");
+			byte[] buff_enc = encryption.encrypt(buf, ".keys/." + nick + ".txt");
+			String address = nick_address.get(nick);
+			//System.out.println("buff = " + buff + ", address = " + address);
+			DatagramPacket packet = new DatagramPacket(buff_enc, buff_enc.length, new InetSocketAddress(address, server.getPort()));
+			DatagramSocket sock = null;
+			String sent = file.getAbsolutePath() + "/" + file.getName();
+			try {
+				sock = new DatagramSocket(); //TODO COSA FARE SE INVIO NON RIESCE? E NEL CASO STIA CERCANDO DI INVIARE IL MIO NICK (QUINDI UTENTE NON LO SA)?
+				sock.send(packet);		
+				BufferedWriter chat_writer;
+				String timestamp = timestamp();
+				try {
+					chat_writer = new BufferedWriter(new FileWriter("chats/" + nick + ".txt", true));
+					chat_writer.write("S" + timestamp + "File: " + sent + "\n");
+					chat_writer.close();
+				} catch (IOException e) {
+					System.err.println("Error while saving message sent in chat file");
+					e.printStackTrace();
+				}    
+				chat_now.add(new Message(timestamp, sent, true));
+			} catch (IOException e) {
+				System.err.println("Error while sending a message");
+				e.printStackTrace();
+				sock.close();
+			}
+			sock.close();
+			if (sending.containsKey(nick + "-" + sent)) {
+				Integer count = sending.remove(nick + "-" + sent);
+				sending.put(nick + "-" + sent, ++count);
+			}
+			else
+				sending.put(nick + "-" + sent, 1);
+			to_send.close();
+			System.out.println("send(" + nick + ", " + sent + ") done");
+		} catch (IOException e) {
+			System.err.println("Error while sending attachment");
+			e.printStackTrace();
+		}
+	}
+
+	/********** attachReceived() **********/
+	/**
+	   @brief Saves the attachment received 
+	   @param buff
+	   @param ip
+	 */
+	public void attachReceived(byte[] buff, String address) {
+		JFileChooser jfc = new JFileChooser("attachments/");
+		jfc.showSaveDialog(null);
+		String file_name = jfc.getSelectedFile().getAbsolutePath(); //TODO CONTROLLA CHE FUNZIONI!!!
+		System.out.println(file_name);
+		try {
+			OutputStream wri = new FileOutputStream(file_name, true); //TODO vedi note.txt 14)
+			wri.write(buff, 0, buff.length);
+			wri.close();
+		} catch (IOException e) {
+			System.err.println("Error while saving attachment received");
+			e.printStackTrace();
+		}
+		System.out.println("saved");
+		BufferedWriter chat_writer;
+		String timestamp = timestamp();
+		String nick = nick_address.inverse().get(address); //TODO COSA FARE SE NON CONOSCO QUEL NICK? È POSSIBILE CHE QUALCUNO MI PARLI E IO NON CONOSCA IL SUO NICK?
+		try {
+			chat_writer = new BufferedWriter(new FileWriter("chats/" + nick + ".txt", true));
+			chat_writer.write("R" + timestamp + "File: " + file_name + "\n");
+			chat_writer.close();
+		} catch (IOException e) {
+			System.err.println("Error while saving message received in chat file");
+			e.printStackTrace();
+		}
+		app.senders.add(nick);
+		app.ChatList();
+		clip.loop(1);
+		System.out.println("attachReceived(" + file_name + ", " + address + ")");		
+	}	
 }

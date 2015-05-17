@@ -23,6 +23,7 @@ public class Login {
 	private static Login instance;
 	private ChatManager chat_manager;
 	private Size size;
+	private Scan scan;
 
 	public static Login getInstance() {
 		if (instance == null)
@@ -33,6 +34,7 @@ public class Login {
 	private Login() {
 		chat_manager = ChatManager.getInstance();
 		size = Size.getInstance();
+		scan = Scan.getInstance();
 	}
 
 	public boolean getNick() {
@@ -44,19 +46,22 @@ public class Login {
 		try {
 			String line;
 			read_nick = new BufferedReader(new FileReader(nick));
-			int index;
 			while((line = read_nick.readLine()) != null) {
-				index = line.indexOf("NICK: ");
-				if (index != -1) {
+				switch(line.substring(0, 4)) {
+				case "NICK" : {
 					chat_manager.setNick(line.substring(6));
 					ret = true;
-				}
-				index = line.indexOf("TTS: ");
-				if (index != -1) 
-					Scan.getInstance().setSleep(Integer.parseInt(line.substring(5)));
-				index = line.indexOf("BUFF: ");
-				if (index != -1)
+				} break;
+				case "TTos" : 
+					scan.setSleep(Integer.parseInt(line.substring(6)));
+					break;
+				case "BUFF" : 
 					Server.getInstance().setBuff_size(Integer.parseInt(line.substring(6)));
+					break;
+				case "EMPT" :
+					scan.setEmpty(Integer.parseInt(line.substring(6)));
+					break;
+				}
 			}
 			read_nick.close();
 		} catch(IOException e) {

@@ -7,12 +7,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
 
+import app.App;
+
 public class Scan extends Thread implements Runnable {
 	
 		private static Scan instance;
 		private Server server;
 		private ChatManager chat_manger;
 		private int sleep = 15;
+		private App app;
+		private int empty = 4;
 		
 		public int getSleep() {
 			return sleep;
@@ -20,6 +24,14 @@ public class Scan extends Thread implements Runnable {
 
 		public void setSleep(int sleep) {
 			this.sleep = sleep;
+		}
+		
+		public int getEmpty() {
+			return empty;
+		}
+		
+		public void setEmpty(int empty) {
+			this.empty = empty;
 		}
 
 		/********** getInstance() **********/
@@ -52,10 +64,14 @@ public class Scan extends Thread implements Runnable {
 		 */
 		@Override
 		public void run() {
+			long c = 0;
+			app = App.getInstance();
 			while (true) {
 				try {
 					scan(); //TODO OGNI TANTO DOBBIAMO SVUOTARE LA LISTA DI HOST PER EVITARE DI CONSERVARNE ALCUNI HOST NON RAGGIUNGIBILI O CHE SI SONO DISCONNESSI
-					sleep(sleep * 1000); 
+					sleep(sleep * 1000);
+					if (c % empty == 0)
+						app.remove("ALL");
 				} catch (InterruptedException e) {
 					System.out.println("Interrup network scanning");
 				}
@@ -82,19 +98,13 @@ public class Scan extends Thread implements Runnable {
 					int index = line.indexOf("Nmap scan report for ");
 					if (index != -1) {
 						String ip = line.substring(index + 21);
+						if (ip.indexOf("(") != -1) // Sometimes you find some addresses (usually public hotspot) like "hotspot.internavigare.com (172.16.12.1)"
+							ip = ip.substring(ip.indexOf("(") + 1, ip.lastIndexOf(")"));
 						System.out.println("IP: " + ip);
 						hosts.add(ip);
 					}
 				}
-				Iterator<String> iter = hosts.iterator();
-				while (iter.hasNext()) {
-					String ip = iter.next();
-					if (ip.indexOf("(") != -1) // Sometimes you find some addresses (usually public hotspot) like "hotspot.internavigare.com (172.16.12.1)"
-						ip = ip.substring(ip.indexOf("(") + 1, ip.indexOf(")"));
-					//System.out.println("MyIP = " + server.getMyIP() + ", IP = " + ip);
-					if (ip.indexOf(server.getMyIP()) == -1) 
-						chat_manger.sendIP(ip, "##NICK:" + chat_manger.getMyNick() + "##");
-				}	
+				broadcast(hosts, "##NICK:" + chat_manger.getMyNick() + "##");	
 				in.close();
 				s.close();
 			} catch (IOException e) {
@@ -104,4 +114,18 @@ public class Scan extends Thread implements Runnable {
 		System.out.println("scan() done");
 		}
 		
+		/********** broadcast() **********/
+		/**
+		   @brief sends a message to all hosts on LAN
+		   @param hosts is a list of hosts on the LAN
+		   @param message is the message I want to send
+		 */
+		public void broadcast(List<String> hosts, String message) {
+			Iterator<String> iter = hosts.iterator();
+			while (iter.hasNext()) {
+				String ip = iter.next();
+				if (ip.indexOf(server.getMyIP()) == -1) 
+					chat_manger.sendIP(ip, message);
+			}
+		}
 }
