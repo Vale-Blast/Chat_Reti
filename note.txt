@@ -8,8 +8,7 @@ Attenzione a:
        nel caso due utenti abbiano lo stesso nick ci sarà un            nickname o che tiene i messaggi e ogni utente fa una richiesta al
        accavallamento                                                   server per sapere se ci sono messaggi nuovi
 
-    3) Al lancio dell'applicazione sarebbe corretto controllare se tutte le directory che gli servono sono presenti con getParent... e nel
-       caso crearle
+    3) Dovremmo impostare diritti solo di lettura per molte cose
 
     4) Aggiungere delle impostazioni per utente che può modficare:
            - suono notifica nuovo msg

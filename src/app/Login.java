@@ -24,6 +24,7 @@ public class Login {
 	private ChatManager chat_manager;
 	private Size size;
 	private Scan scan;
+	private String[] folders = {"chats/", "resources/", ".keys/", "attachments/"}; // an array of all folders needed
 
 	public static Login getInstance() {
 		if (instance == null)
@@ -37,6 +38,12 @@ public class Login {
 		scan = Scan.getInstance();
 	}
 
+	/********** getNick() **********/
+	/**
+	   @brief Loads config file .chat and reads some settings (nickname, time to sleep, buffer lenght...)
+	   @return true if a nickname exists in config file
+	   @return false if there's no config file or no nickname
+	 */
 	public boolean getNick() {
 		File nick = new File(".chat");
 		boolean ret = false;
@@ -49,8 +56,11 @@ public class Login {
 			while((line = read_nick.readLine()) != null) {
 				switch(line.substring(0, 4)) {
 				case "NICK" : {
-					chat_manager.setNick(line.substring(6));
-					ret = true;
+					String nickname = line.substring(6);
+					if (nickname.length() > 0) {
+						chat_manager.setNick(nickname);
+						ret = true;
+					}
 				} break;
 				case "TTos" : 
 					scan.setSleep(Integer.parseInt(line.substring(6)));
@@ -72,6 +82,10 @@ public class Login {
 
 	boolean cont = true;
 	
+	/********** createNick() **********/
+	/**
+	   @brief If no nickname was found user has to create a new one using this little GUI, nickname will be saved in config file .chat
+	 */
 	public void createNick() {
 		JFrame frame = new JFrame("Insert nickname");
 		frame.setLayout(null);
@@ -116,5 +130,22 @@ public class Login {
 		}
 		chat_manager.setNick(nick_field.getText());
 		System.out.println("nick set: " + nick_field.getText());
+	}
+	
+	/********** checkFolders() **********/
+	/**
+	   @brief checks that all folders needed are present, otherwise it creates them
+	 */
+	public void checkFolders() {
+		for (int i = 0; i < folders.length ; ++i) {
+			File folder = new File(folders[i]);
+			if (!folder.exists())
+				try {
+					Runtime.getRuntime().exec("mkdir " + folder);
+				} catch (IOException e) {
+					System.err.println("Error while creating folder " + folders[i]);
+					e.printStackTrace();
+				}
+		}
 	}
 }
