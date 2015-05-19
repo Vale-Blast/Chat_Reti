@@ -10,9 +10,6 @@ Attenzione a:
 
     3) Dovremmo impostare diritti solo di lettura per molte cose
 
-    4) Aggiungere delle impostazioni per utente che può modficare:
-           - suono notifica nuovo msg
-
     5) Tutte funzioni void potrebbero diventare bool in modo che il chiamante sappia se è andato tutto ok o no
 
     6) Utente non può personalizzare lo sfondo delle chat

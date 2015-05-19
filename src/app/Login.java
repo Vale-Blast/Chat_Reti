@@ -77,6 +77,7 @@ public class Login {
 			}
 			read_nick.close();
 		} catch(IOException e) {
+			e.printStackTrace();
 			return false;
 		}
 		return ret;
@@ -95,9 +96,9 @@ public class Login {
 		frame.setBounds(size.getScreen_offset().width, size.getScreen_offset().height, size.getNew_nick().width, size.getNew_nick().height);
 		JLabel nick_label = new JLabel("Insert your nickname");
 		nick_label.setBounds(size.getNew_nick().width/4, 5*vpadd, size.getNew_nick().width*4/5, size.getNew_nick().height*1/6);
-		JTextField nick_field = new JTextField();
+		final JTextField nick_field = new JTextField();
 		nick_field.setBounds(size.getNew_nick().width/10, size.getNew_nick().height*1/8 + 10*vpadd, size.getNew_nick().width*4/5, size.getNew_nick().height*1/8);
-		JButton ok = new JButton("OK");
+		final JButton ok = new JButton("OK");
 		ok.addActionListener(new ActionListener() {
 
 			@Override
@@ -111,13 +112,16 @@ public class Login {
 		frame.add(nick_label);
 		frame.add(nick_field);
 		frame.add(ok);
-		while(cont) {
-			System.out.println(nick_field.getText());
-			if(nick_field.getText().length() > 0)
-				ok.setEnabled(true);
-			else
-				ok.setEnabled(false);
-		}
+		nick_field.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if (nick_field.getText().length() > 0)
+					ok.setEnabled(true);
+				else
+					ok.setEnabled(false);
+			}
+		});
 		frame.dispose();
 		File nick = new File(".chat");
 		BufferedWriter nick_writer;

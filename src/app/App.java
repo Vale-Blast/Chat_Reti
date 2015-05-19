@@ -89,11 +89,10 @@ public class App implements Runnable {
 		chat_manager.startScan();
 		try {
 			server = Server.getInstance();
+			createGUI();		
 		} catch (IOException e) {
-			System.err.println("Error while starting the server");
 			e.printStackTrace();
 		}
-		createGUI();		
 	}
 
 	/********** createGUI() ***********/
