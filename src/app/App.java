@@ -25,8 +25,6 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 
-import com.sun.media.jfxmedia.events.PlayerEvent;
-
 import net.ChatManager;
 import net.Message;
 import net.Scan;

@@ -10,8 +10,6 @@ Attenzione a:
 
     3) Dovremmo impostare diritti solo di lettura per molte cose
 
-    5) Tutte funzioni void potrebbero diventare bool in modo che il chiamante sappia se è andato tutto ok o no
-
     6) Utente non può personalizzare lo sfondo delle chat
 
     7) Non ci sono controlli particolari sugli spazi, se ci sono solo spazi non viene inviato nulla ma se l'utente scrive "   a    " e
@@ -22,8 +20,6 @@ Attenzione a:
     9) Migliorare interfaccia grafica dei messaggi creando nuvolette separate
 
    11) migliorare pulsante colorato di rosso sulla sinistra quando si riceve un nuovo messaggio
-
-   12) Ogni 3-4 scan dovremmo svuotare la mappa in modo da non conservare inutilmente host non più attivi nella mappa
 
    14) quando mando gli allegati come faccio a sapere il buff_length di chi dovrà ricevere in modo da mandargli il file in un unico
        datagramma?

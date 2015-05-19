@@ -169,6 +169,11 @@ public class ChatManager {
 		return nick_address.inverse().get(address);
 	}
 	
+	/********** getHosts() **********/
+	/**
+	   @brief Gets the list of reachable hosts
+	   @return list is the list of reachable hosts
+	 */
 	public List<String> getHosts() {
 		List<String> list = new ArrayList<>();
 		if (!nick_address.isEmpty())
@@ -337,7 +342,7 @@ public class ChatManager {
 		}
 		app.senders.add(nick);
 		app.ChatList();
-		clip.loop(1);
+		play();
 		System.out.println("messageReceived(" + message + ", " + address + ")");
 	}
 	
