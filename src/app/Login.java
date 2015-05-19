@@ -71,6 +71,8 @@ public class Login {
 				case "EMPT" :
 					scan.setEmpty(Integer.parseInt(line.substring(6)));
 					break;
+				case "DING" :
+					chat_manager.setSound(line.substring(6));
 				}
 			}
 			read_nick.close();

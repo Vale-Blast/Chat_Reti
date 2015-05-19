@@ -44,9 +44,34 @@ public class ChatManager {
 	private App app;
 	private AudioInputStream audio;
 	private Clip clip;
+	private String sound = "resources/Din Don.wav";
+	
+	public void play() {
+		clip.loop(1);
+	}
 	
 	public void setNick(String nick) {
 		my_nick = nick;
+	}
+	
+	public boolean setSound(String sound) {
+		String old_sound = sound;
+		this.sound = sound;
+		try {
+			audio = AudioSystem.getAudioInputStream(new File(sound));
+			clip = AudioSystem.getClip();
+			clip.open(audio);
+		} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+			System.err.println("Error while loading audio file");
+			e.printStackTrace();
+			this.sound = old_sound;
+			return false;
+		}
+		return true;
+	}
+	
+	public String getSound() {
+		return sound;
 	}
 
 	/********** getInstance() **********/
@@ -67,7 +92,7 @@ public class ChatManager {
 		nick_address = HashBiMap.create();
 		sending = new HashMap<>();
 		try {
-			audio = AudioSystem.getAudioInputStream(new File("resources/Din Don.wav"));
+			audio = AudioSystem.getAudioInputStream(new File(sound));
 			clip = AudioSystem.getClip();
 			clip.open(audio);
 		} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
@@ -392,33 +417,34 @@ public class ChatManager {
 	   @param ip
 	 */
 	public void attachReceived(byte[] buff, String address) {
-		JFileChooser jfc = new JFileChooser("attachments/");
-		jfc.showSaveDialog(null);
-		String file_name = jfc.getSelectedFile().getAbsolutePath(); //TODO CONTROLLA CHE FUNZIONI!!!
-		System.out.println(file_name);
-		try {
-			OutputStream wri = new FileOutputStream(file_name, true); //TODO vedi note.txt 14)
-			wri.write(buff, 0, buff.length);
-			wri.close();
-		} catch (IOException e) {
-			System.err.println("Error while saving attachment received");
-			e.printStackTrace();
-		}
-		System.out.println("saved");
-		BufferedWriter chat_writer;
-		String timestamp = timestamp();
-		String nick = nick_address.inverse().get(address); //TODO COSA FARE SE NON CONOSCO QUEL NICK? È POSSIBILE CHE QUALCUNO MI PARLI E IO NON CONOSCA IL SUO NICK?
-		try {
-			chat_writer = new BufferedWriter(new FileWriter("chats/" + nick + ".txt", true));
-			chat_writer.write("R" + timestamp + "File: " + file_name + "\n");
-			chat_writer.close();
-		} catch (IOException e) {
-			System.err.println("Error while saving message received in chat file");
-			e.printStackTrace();
-		}
-		app.senders.add(nick);
-		app.ChatList();
 		clip.loop(1);
-		System.out.println("attachReceived(" + file_name + ", " + address + ")");		
+		JFileChooser jfc = new JFileChooser("attachments/");
+		int res = jfc.showSaveDialog(null);
+		if (res == 0) {
+			String file_name = jfc.getSelectedFile().getAbsolutePath(); //TODO CONTROLLA CHE FUNZIONI!!!
+			System.out.println(file_name);
+			try {
+				OutputStream wri = new FileOutputStream(file_name, true); //TODO vedi note.txt 14)
+				wri.write(buff, 0, buff.length);
+				wri.close();
+			} catch (IOException e) {
+				System.err.println("Error while saving attachment received");
+				e.printStackTrace();
+			}
+			System.out.println("saved");
+			BufferedWriter chat_writer;
+			String timestamp = timestamp();
+			String nick = nick_address.inverse().get(address); //TODO COSA FARE SE NON CONOSCO QUEL NICK? È POSSIBILE CHE QUALCUNO MI PARLI E IO NON CONOSCA IL SUO NICK?
+			try {
+				chat_writer = new BufferedWriter(new FileWriter("chats/" + nick + ".txt", true));
+				chat_writer.write("R" + timestamp + "File: " + file_name + "\n");
+				chat_writer.close();
+			} catch (IOException e) {
+				System.err.println("Error while saving message received in chat file");
+				e.printStackTrace();
+			}
+		}
+		app.ChatList();
+		System.out.println("attachReceived() done");		
 	}	
 }
