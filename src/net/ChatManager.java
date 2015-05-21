@@ -275,9 +275,9 @@ public class ChatManager {
 		byte[] buff = encryption.encrypt("#" + message, ".keys/." + nick + ".txt");
 		String address = nick_address.get(nick);
 		//System.out.println("buff = " + buff + ", address = " + address);
-		DatagramPacket packet = new DatagramPacket(buff, buff.length, new InetSocketAddress(address, server.getPort()));
 		DatagramSocket sock = null;
 		try {
+			DatagramPacket packet = new DatagramPacket(buff, buff.length, new InetSocketAddress(address, server.getPort()));
 			sock = new DatagramSocket();
 			sock.send(packet);		
 			BufferedWriter chat_writer;
@@ -310,9 +310,9 @@ public class ChatManager {
 	public void sendIP(String ip, String message) {
 		byte[] buff = message.getBytes();
 		//System.out.println("buff = " + buff + ", ip = " + ip);
-		DatagramPacket packet = new DatagramPacket(buff, buff.length, new InetSocketAddress(ip, server.getPort()));
 		DatagramSocket sock = null;
 		try {
+			DatagramPacket packet = new DatagramPacket(buff, buff.length, new InetSocketAddress(ip, server.getPort()));
 			sock = new DatagramSocket();
 			sock.send(packet);
 		} catch (IOException e) {
