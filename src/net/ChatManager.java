@@ -25,6 +25,7 @@ import javax.sound.sampled.Clip;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 
 import app.App;
 import app.Encryption;
@@ -277,7 +278,7 @@ public class ChatManager {
 		DatagramPacket packet = new DatagramPacket(buff, buff.length, new InetSocketAddress(address, server.getPort()));
 		DatagramSocket sock = null;
 		try {
-			sock = new DatagramSocket(); //TODO COSA FARE SE INVIO NON RIESCE? E NEL CASO STIA CERCANDO DI INVIARE IL MIO NICK (QUINDI UTENTE NON LO SA)?
+			sock = new DatagramSocket();
 			sock.send(packet);		
 			BufferedWriter chat_writer;
 			String timestamp = timestamp();
@@ -293,6 +294,7 @@ public class ChatManager {
 		} catch (IOException e) {
 			System.err.println("Error while sending a message");
 			e.printStackTrace();
+			JOptionPane.showMessageDialog(null, "Error while sending the message\nPlease try again" ,"Message not sent", JOptionPane.ERROR_MESSAGE);
 			sock.close();
 		}
 		sock.close();
@@ -331,7 +333,7 @@ public class ChatManager {
 	public void messageReceived(String message, String address) {
 		BufferedWriter chat_writer;
 		String timestamp = timestamp();
-		String nick = nick_address.inverse().get(address); //TODO COSA FARE SE NON CONOSCO QUEL NICK? È POSSIBILE CHE QUALCUNO MI PARLI E IO NON CONOSCA IL SUO NICK?
+		String nick = nick_address.inverse().get(address);
 		try {
 			chat_writer = new BufferedWriter(new FileWriter("chats/" + nick + ".txt", true));
 			chat_writer.write("R" + timestamp + message + "\n");
@@ -353,13 +355,13 @@ public class ChatManager {
 	   @param message is the message for which I received an ack
 	 */
 	public void ack(String message, String address) {
-		String nick = nick_address.inverse().get(address); //TODO COSA FARE SE NON CONOSCO QUEL NICK? È POSSIBILE CHE QUALCUNO MI PARLI E IO NON CONOSCA IL SUO NICK?
-		if(!sending.containsKey(nick + "-" + message)) //TODO POSSO ARRIVARE QUI? È POSSIBILE CHE RICEVA UN ACK MA IL MESSAGGIO NON SIA IN SENDING?
+		String nick = nick_address.inverse().get(address);
+		if(!sending.containsKey(nick + "-" + message))
 			return;
 		Integer count = sending.remove(nick + "-" + message);
 		if (count > 1)
 			sending.put(nick + "-" + message, --count);
-		return;		
+		System.out.println("ACK received for message: \"" + message + "\"");
 	}
 	
 	/********** attach() **********/
@@ -382,7 +384,7 @@ public class ChatManager {
 			DatagramSocket sock = null;
 			String sent = file.getAbsolutePath() + "/" + file.getName();
 			try {
-				sock = new DatagramSocket(); //TODO COSA FARE SE INVIO NON RIESCE? E NEL CASO STIA CERCANDO DI INVIARE IL MIO NICK (QUINDI UTENTE NON LO SA)?
+				sock = new DatagramSocket();
 				sock.send(packet);		
 				BufferedWriter chat_writer;
 				String timestamp = timestamp();
@@ -397,6 +399,7 @@ public class ChatManager {
 				chat_now.add(new Message(timestamp, sent, true));
 			} catch (IOException e) {
 				System.err.println("Error while sending a message");
+				JOptionPane.showMessageDialog(null, "Error while sending the attachment\nPlease try again" ,"Attachment not sent", JOptionPane.ERROR_MESSAGE);
 				e.printStackTrace();
 				sock.close();
 			}
@@ -426,7 +429,7 @@ public class ChatManager {
 		JFileChooser jfc = new JFileChooser("attachments/");
 		int res = jfc.showSaveDialog(null);
 		if (res == 0) {
-			String file_name = jfc.getSelectedFile().getAbsolutePath(); //TODO CONTROLLA CHE FUNZIONI!!!
+			String file_name = jfc.getSelectedFile().getAbsolutePath();
 			System.out.println(file_name);
 			try {
 				OutputStream wri = new FileOutputStream(file_name, true); //TODO vedi note.txt 14)
@@ -439,7 +442,7 @@ public class ChatManager {
 			System.out.println("saved");
 			BufferedWriter chat_writer;
 			String timestamp = timestamp();
-			String nick = nick_address.inverse().get(address); //TODO COSA FARE SE NON CONOSCO QUEL NICK? È POSSIBILE CHE QUALCUNO MI PARLI E IO NON CONOSCA IL SUO NICK?
+			String nick = nick_address.inverse().get(address); 
 			try {
 				chat_writer = new BufferedWriter(new FileWriter("chats/" + nick + ".txt", true));
 				chat_writer.write("R" + timestamp + "File: " + file_name + "\n");

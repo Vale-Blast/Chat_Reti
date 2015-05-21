@@ -31,10 +31,6 @@ public class Size {
 		super();
 	}
 	
-//	public Dimension getScreen() {
-//		return screen;
-//	}
-
 	public Dimension getScreen_offset() {
 		return screen_offset;
 	}

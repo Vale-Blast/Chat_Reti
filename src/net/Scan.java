@@ -68,7 +68,7 @@ public class Scan extends Thread implements Runnable {
 			app = App.getInstance();
 			while (true) {
 				try {
-					scan(); //TODO OGNI TANTO DOBBIAMO SVUOTARE LA LISTA DI HOST PER EVITARE DI CONSERVARNE ALCUNI HOST NON RAGGIUNGIBILI O CHE SI SONO DISCONNESSI
+					scan();
 					sleep(sleep * 1000);
 					if (c % empty == 0)
 						app.remove("ALL");
