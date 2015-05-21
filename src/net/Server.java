@@ -9,6 +9,8 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
 
+import javax.crypto.BadPaddingException;
+
 import app.App;
 import app.Encryption;
 
@@ -76,7 +78,13 @@ public class Server extends Thread implements Runnable {
 			try {
 				socket.receive(packet); // receive
 				String ip = packet.getAddress().getHostAddress();
-				String message = encryption.decrypt(buff);
+				String message;
+				try {
+					message = encryption.decrypt(buff);
+				} catch (Throwable e) {
+					message = new String(buff, 0, buff.length);
+					System.out.println("il messaggio era in chiaro");
+				}
 				if (!message.startsWith("#")) // It means I recived an attachment
 					chat_manager.attachReceived(buff, ip);
 				else { // Not an attachment

@@ -83,14 +83,14 @@ public class Login {
 		return ret;
 	}
 
-	boolean cont = true;
 	
+	boolean cont = true;
 	/********** createNick() **********/
 	/**
 	   @brief If no nickname was found user has to create a new one using this little GUI, nickname will be saved in config file .chat
 	 */
 	public void createNick() {
-		JFrame frame = new JFrame("Insert nickname");
+		final JFrame frame = new JFrame("Insert nickname");
 		frame.setLayout(null);
 		int vpadd = size.getScreen_offset().height/20;
 		frame.setBounds(size.getScreen_offset().width, size.getScreen_offset().height, size.getNew_nick().width, size.getNew_nick().height);
@@ -112,16 +112,17 @@ public class Login {
 		frame.add(nick_label);
 		frame.add(nick_field);
 		frame.add(ok);
-		nick_field.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		while (cont) {
+			try {
 				if (nick_field.getText().length() > 0)
 					ok.setEnabled(true);
 				else
 					ok.setEnabled(false);
+			} catch (NullPointerException e) {
+				ok.setEnabled(false);
 			}
-		});
+		}
 		frame.dispose();
 		File nick = new File(".chat");
 		BufferedWriter nick_writer;

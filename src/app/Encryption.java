@@ -133,7 +133,7 @@ public class Encryption {
 		} catch (IOException | ClassNotFoundException | NoSuchAlgorithmException | NoSuchPaddingException
 				| InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
 			System.err.println("Error while decrypting the message");
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 		return new String(dectyptedText, 0, dectyptedText.length);
 	}
