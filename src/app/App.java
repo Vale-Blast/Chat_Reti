@@ -28,7 +28,6 @@ import javax.swing.JToolBar;
 import net.ChatManager;
 import net.Message;
 import net.Scan;
-import net.Server;
 
 public class App implements Runnable {
 	
@@ -36,7 +35,6 @@ public class App implements Runnable {
 
 	private Size size;
 	private Scan scan;
-	private Server server;
 	private ChatManager chat_manager;
 	private List<String> hosts;
 	public HashSet<String> senders; // a Set of nicks who sent me an unread message
@@ -85,12 +83,7 @@ public class App implements Runnable {
 		scan = Scan.getInstance();
 		chat_manager.startServer();
 		chat_manager.startScan();
-		try {
-			server = Server.getInstance();
-			createGUI();		
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		createGUI();
 	}
 
 	/********** createGUI() ***********/
@@ -127,21 +120,17 @@ public class App implements Runnable {
 				tts_label.setBounds(hOffset, vpadd, size.getSettings().width*4/5, size.getSettings().height/10);
 				final JTextField tts_field = new JTextField("" + scan.getSleep());
 				tts_field.setBounds(hOffset, vpadd*3/2 + size.getSettings().height/10, size.getSettings().width*4/5, size.getSettings().height/10);
-				JLabel buff_label = new JLabel("Max Buffer length:");
-				buff_label.setBounds(hOffset, vpadd*5/2 + size.getSettings().height/5, size.getSettings().width*4/5, size.getSettings().height/10);
-				final JTextField buff_field = new JTextField("" + server.getBuff_size());
-				buff_field.setBounds(hOffset, vpadd*3 + size.getSettings().height*3/10, size.getSettings().width*4/5, size.getSettings().height/10);
 				JLabel empty_label = new JLabel("Number of iterations to empty hosts list:");
-				empty_label.setBounds(hOffset, vpadd*4 + size.getSettings().height*2/5, size.getSettings().width*4/5, size.getSettings().height/10);
+				empty_label.setBounds(hOffset, vpadd*5/2 + size.getSettings().height/5, size.getSettings().width*4/5, size.getSettings().height/10);
 				final JTextField empty_field = new JTextField("" + scan.getEmpty());
-				empty_field.setBounds(hOffset, vpadd*9/2 + size.getSettings().height/2, size.getSettings().width*4/5, size.getSettings().height/10);
+				empty_field.setBounds(hOffset, vpadd*3 + size.getSettings().height*3/10, size.getSettings().width*4/5, size.getSettings().height/10);
 				JLabel music_label = new JLabel("Notification sound:");
-				music_label.setBounds(hOffset, vpadd*11/2 + size.getSettings().height*3/5, size.getSettings().width*4/5, size.getSettings().height/10);
+				music_label.setBounds(hOffset, vpadd*4 + size.getSettings().height*2/5, size.getSettings().width*4/5, size.getSettings().height/10);
 				final JLabel music_file = new JLabel(chat_manager.getSound());
-				music_file.setBounds(hOffset, vpadd*6 + size.getSettings().height*7/10, size.getSettings().width*4/5, size.getSettings().height/10);
+				music_file.setBounds(hOffset, vpadd*9/2 + size.getSettings().height/2, size.getSettings().width*4/5, size.getSettings().height/10);
 				JButton music = new JButton(new ImageIcon(new ImageIcon("resources/folder.png")
 								.getImage().getScaledInstance(size.getToolbar().height/2, size.getToolbar().height/2, Image.SCALE_FAST)));
-				music.setBounds(size.getSettings().width - size.getToolbar().height/2 - hOffset, vpadd*6 + size.getSettings().height*7/10, size.getToolbar().height/2, size.getToolbar().height/2);
+				music.setBounds(size.getSettings().width - size.getToolbar().height/2 - hOffset, vpadd*9/2 + size.getSettings().height/2, size.getToolbar().height/2, size.getToolbar().height/2);
 				final JButton play = new JButton(new ImageIcon(new ImageIcon("resources/music.png")
 								.getImage().getScaledInstance(size.getToolbar().height/2, size.getToolbar().height/2, Image.SCALE_FAST)));
 				music.addActionListener(new ActionListener() {
@@ -157,7 +146,7 @@ public class App implements Runnable {
 						}
 					}
 				});
-				play.setBounds(size.getSettings().width - hOffset + padd/2, vpadd*6 + size.getSettings().height*7/10, size.getToolbar().height/2, size.getToolbar().height/2);
+				play.setBounds(size.getSettings().width - hOffset + padd/2, vpadd*9/2 + size.getSettings().height/2, size.getToolbar().height/2, size.getToolbar().height/2);
 				play.addActionListener(new ActionListener() {
 					
 					@Override
@@ -171,21 +160,18 @@ public class App implements Runnable {
 
 					@Override
 					public void actionPerformed(ActionEvent e) {
-						if (tts_field.getText().length() > 0 && buff_field.getText().length() > 0) {
+						if (tts_field.getText().length() > 0 && empty_field.getText().length() > 0) {
 							if (!chat_manager.setSound(music_file.getText())) {
 								JOptionPane.showMessageDialog(settings, "Wrong Sound file, please check it and try again, maybe you should use .wav" ,"Bad Sound File", JOptionPane.ERROR_MESSAGE);
 								play.setEnabled(false);
-							}
-							else {
+							} else {
 								scan.setSleep(Integer.parseInt(tts_field.getText()));
-								server.setBuff_size(Integer.parseInt(buff_field.getText()));
 								scan.setEmpty(Integer.parseInt(empty_field.getText()));
 								BufferedWriter sett_writer;
 								try {
 									sett_writer = new BufferedWriter(new FileWriter(".chat", false));
 									sett_writer.write("NICK: " + chat_manager.getMyNick() + "\n");
 									sett_writer.write("TToS: " + scan.getSleep() + "\n");
-									sett_writer.write("BUFF: " + server.getBuff_size() + "\n");
 									sett_writer.write("EMPT: " + scan.getEmpty() + "\n");
 									sett_writer.write("DING: " + chat_manager.getSound() + "\n");
 									sett_writer.close();
@@ -207,8 +193,6 @@ public class App implements Runnable {
 				});
 				settings.add(tts_label);
 				settings.add(tts_field);
-				settings.add(buff_label);
-				settings.add(buff_field);
 				settings.add(empty_label);
 				settings.add(empty_field);
 				settings.add(music_label);
@@ -218,7 +202,7 @@ public class App implements Runnable {
 				settings.add(ok);
 				settings.add(cancel);
 				settings.setResizable(false);
-				settings.setBounds(size.getScreen_offset().width, size.getScreen_offset().height, size.getSettings().width, size.getSettings().height*3/2);
+				settings.setBounds(size.getScreen_offset().width, size.getScreen_offset().height, size.getSettings().width, (int) (size.getSettings().height*1.3));
 				ok.setBounds(size.getSettings().width/2 - size.getButton_inside().width - padd, settings.getBounds().height - hOffset - size.getButton_inside().height, size.getButton_inside().width, size.getButton_inside().height);
 				cancel.setBounds(size.getSettings().width/2 + padd, settings.getBounds().height - hOffset - size.getButton_inside().height, size.getButton_inside().width, size.getButton_inside().height);
 				settings.setVisible(true);
@@ -271,13 +255,17 @@ public class App implements Runnable {
 				JFileChooser jfc = new JFileChooser();
 				int res = jfc.showOpenDialog(frame);
 				if (res == 0) {
-					System.out.println(jfc.getSelectedFile().getAbsolutePath());
-					try {
-						chat_manager.attach(jfc.getSelectedFile(), chat_now);
-						openChat(chat_now);
-						ChatList();
-					} catch (FileNotFoundException e1) {
-						JOptionPane.showMessageDialog(frame, "File not Found, please check it and try again" ,"File not found", JOptionPane.ERROR_MESSAGE);
+					if (jfc.getSelectedFile().length() > 10 * 1024 * 1024)
+						JOptionPane.showMessageDialog(frame, "File too big, max 10 MB", "File too big", JOptionPane.ERROR_MESSAGE);
+					else {
+						System.out.println(jfc.getSelectedFile().getAbsolutePath());
+						try {
+							chat_manager.attach(jfc.getSelectedFile(), chat_now);
+							openChat(chat_now);
+							ChatList();
+						} catch (FileNotFoundException e1) {
+							JOptionPane.showMessageDialog(frame, "File not Found, please check it and try again" ,"File not found", JOptionPane.ERROR_MESSAGE);
+						}
 					}
 				}
 			}

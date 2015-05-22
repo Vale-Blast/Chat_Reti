@@ -100,7 +100,7 @@ public class Scan extends Thread implements Runnable {
 						String ip = line.substring(index + 21);
 						if (ip.indexOf("(") != -1) // Sometimes you find some addresses (usually public hotspot) like "hotspot.internavigare.com (172.16.12.1)"
 							ip = ip.substring(ip.indexOf("(") + 1, ip.lastIndexOf(")"));
-						System.out.println("IP: " + ip);
+						//System.out.println("IP: " + ip);
 						hosts.add(ip);
 					}
 				}

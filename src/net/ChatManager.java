@@ -22,8 +22,6 @@ import java.util.List;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
@@ -45,10 +43,12 @@ public class ChatManager {
 	private App app;
 	private AudioInputStream audio;
 	private Clip clip;
+	private boolean music_ok;
 	private String sound = "resources/Din Don.wav";
 	
 	public void play() {
-		clip.loop(1);
+		if (music_ok)
+			clip.loop(1);
 	}
 	
 	public void setNick(String nick) {
@@ -56,16 +56,19 @@ public class ChatManager {
 	}
 	
 	public boolean setSound(String sound) {
+		if (!music_ok)
+			return true;
 		String old_sound = sound;
 		this.sound = sound;
 		try {
 			audio = AudioSystem.getAudioInputStream(new File(sound));
 			clip = AudioSystem.getClip();
 			clip.open(audio);
-		} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+		} catch (Throwable e) {
 			System.err.println("Error while loading audio file");
-			e.printStackTrace();
+			//e.printStackTrace();
 			this.sound = old_sound;
+			music_ok = false;
 			return false;
 		}
 		return true;
@@ -96,9 +99,10 @@ public class ChatManager {
 			audio = AudioSystem.getAudioInputStream(new File(sound));
 			clip = AudioSystem.getClip();
 			clip.open(audio);
-		} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+		} catch (Throwable e) {
 			System.err.println("Error while loading audio file");
-			e.printStackTrace();
+			//e.printStackTrace();
+			music_ok = false;
 		}
 		encryption = Encryption.getInstance();
 	}
@@ -237,7 +241,7 @@ public class ChatManager {
 					if (line.charAt(0) == 'R') {
 						type = false;
 					}
-					date = line.substring(1, 21);
+					date = line.substring(1, 22);
 					message = line.substring(22);
 //					System.out.println("" + date);
 //					System.out.println("" + message);
@@ -321,7 +325,7 @@ public class ChatManager {
 			sock.close();
 		}
 		sock.close();
-		System.out.println("sendIP(" + ip + ", " + message + ") done");
+		//System.out.println("sendIP(" + ip + ", " + message + ") done");
 	}
 	
 	/********** messageReceived() **********/
@@ -376,13 +380,11 @@ public class ChatManager {
 		byte buf[] = new byte[(int) file.length()]; //TODO VEDI note.txt 14) conversion it's okay because max_int in java is 2^31 and 2^31 B ==> 2 GB
 		try {
 			to_send.read(buf);
-			attachReceived(buf, "Fake");
-			byte[] buff_enc = encryption.encrypt(buf, ".keys/." + nick + ".txt");
 			String address = nick_address.get(nick);
 			//System.out.println("buff = " + buff + ", address = " + address);
-			DatagramPacket packet = new DatagramPacket(buff_enc, buff_enc.length, new InetSocketAddress(address, server.getPort()));
+			DatagramPacket packet = new DatagramPacket(buf, buf.length, new InetSocketAddress(address, server.getPort()));
 			DatagramSocket sock = null;
-			String sent = file.getAbsolutePath() + "/" + file.getName();
+			String sent = file.getAbsolutePath();
 			try {
 				sock = new DatagramSocket();
 				sock.send(packet);		
@@ -416,6 +418,7 @@ public class ChatManager {
 			System.err.println("Error while sending attachment");
 			e.printStackTrace();
 		}
+		System.out.println("attach(" + file.getAbsolutePath() + ", " + nick + ") done");
 	}
 
 	/********** attachReceived() **********/

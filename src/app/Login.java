@@ -16,7 +16,6 @@ import javax.swing.JTextField;
 
 import net.ChatManager;
 import net.Scan;
-import net.Server;
 
 public class Login {
 
@@ -64,9 +63,6 @@ public class Login {
 				} break;
 				case "TTos" : 
 					scan.setSleep(Integer.parseInt(line.substring(6)));
-					break;
-				case "BUFF" : 
-					Server.getInstance().setBuff_size(Integer.parseInt(line.substring(6)));
 					break;
 				case "EMPT" :
 					scan.setEmpty(Integer.parseInt(line.substring(6)));

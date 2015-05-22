@@ -9,8 +9,6 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
 
-import javax.crypto.BadPaddingException;
-
 import app.App;
 import app.Encryption;
 
@@ -18,7 +16,7 @@ import app.Encryption;
 public class Server extends Thread implements Runnable {
 	
 	private static int port = 25023;
-	private int buff_size = 256;
+	private int buff_size = 1024 * 1024 * 11; // 11 MB
 	private static Server instance;
 	private DatagramSocket socket;
 	private ChatManager chat_manager;
@@ -82,8 +80,7 @@ public class Server extends Thread implements Runnable {
 				try {
 					message = encryption.decrypt(buff);
 				} catch (Throwable e) {
-					message = new String(buff, 0, buff.length);
-					System.out.println("il messaggio era in chiaro");
+					message = new String(buff, 0, buff.length); // Special messages and attachments aren't encrypted
 				}
 				if (!message.startsWith("#")) // It means I recived an attachment
 					chat_manager.attachReceived(buff, ip);
@@ -92,9 +89,12 @@ public class Server extends Thread implements Runnable {
 					if (message.startsWith("##")) { // It's a special message
 						switch(message.substring(2, 6)) {
 						case "NICK" : {// Nick messages
-							if (message.lastIndexOf("#$#") == -1) // #$# is present only when he answers to another nick message, this means he already knows my nick
+							String nick;
+							if (message.lastIndexOf("#$#") == -1) {// #$# is present only when he answers to another nick message, this means he already knows my nick
 								chat_manager.sendIP(ip, "##NICK:" + chat_manager.getMyNick() + "#$#");
-							String nick = message.substring(7, message.lastIndexOf("##"));
+								nick = message.substring(7, message.lastIndexOf("##"));
+							} else
+								nick = message.substring(7, message.lastIndexOf("#$#"));
 							chat_manager.addNickAddress(nick, ip);
 						} break;
 						case "RCVD" : {// Ack messages
