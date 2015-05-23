@@ -1,53 +1,62 @@
-\documentclass[12pt, a4paper, twoside, openright]{book}
-\usepackage[italian ,english]{babel}
-\usepackage{makeidx}
-\usepackage[utf8x]{inputenc}
-\usepackage{hyperref}
-\hypersetup{colorlinks=true, urlcolor=blue, linkcolor=blue}
-\usepackage{color}
-\usepackage{indentfirst}
+% Compile with pdflatex main.tex
+\documentclass[a4paper,12pt]{article}
+
+\usepackage{lmodern}
 \usepackage[T1]{fontenc}
-%\usepackage{amsfonts}
-%\usepackage{amssymb}
-%\usepackage{nicefrac}
-%\usepackage{dashrule}
-%\usepackage{ltablex, arydshln}
+% Adatta Latex alle convenzioni tipogafiche italiane
+\usepackage[italian]{babel} 
+% Consente l'uso dei caratteri accentati italiani
+\usepackage[utf8]{inputenc}
+% Simboli matematici (if we need) 
 \usepackage{amsmath}
+\usepackage{amsthm}
+% Scrittura di codici
+\usepackage{listings}
+% Altri package di utilità generica
+\usepackage{titling}
+\usepackage{color}
 \usepackage{graphicx}
-\usepackage{empheq}
-\usepackage{relsize}
-\usepackage[Lenny]{fncychap}
-%\usepackage[bottom]{footmisc}
-%\interfootnotelinepenalty =10000
-%\usepackage{acronym}
-\usepackage{verbatim}
-\usepackage{varioref}
-\pagestyle{plain}
+\usepackage{caption}
+\usepackage{wallpaper}
 
-\makeatletter
-\def\cleardoublepage{\clearpage\if@twoside \ifodd\c@page\else \hbox{}
-\vspace*{\fill}
-\thispagestyle{empty}
-\newpage
-\if@twocolumn \hbox{} \newpage \fi\fi\fi}
-\makeatother
+% Impostazioni dei codici
+\lstset{language=Java}
 
-%PAGINA DI COPERTINA DA INSERIRE
+% Definizione del comando subtitle
+\newcommand{\subtitle}[1]{
+  \posttitle{
+    \par\end{center}
+    \begin{center}\large#1\end{center}
+    \vskip0.5em}
+}
 
-\newpage \setcounter{page}[1]
+% Definizione dell'intestazione
+\title{Implementazione di una chat in linguaggio Java con crittografia asimmetrica}
+\subtitle{Progetto del corso di Reti di Calcolatori}
+\author{Valentino Marano, Amerigo Mancino}
+\date{Giugno 2015}
 
-\linespread{1.3}
-
+% Documento principale
 \begin{document}
+
+% Creo la prima pagina
+\maketitle
+
+% Elimino il numero di pagina dalla copertina
+\thispagestyle{empty}
+
+% Logo dell'università
+\begin{figure}[!bth]
+\includegraphics[width=3.0cm]{logo.jpg} 
+\centering
+\end{figure}
+
+% Indice
+\newpage
 \tableofcontents
-%\listoffigures
-%\listoftables
+\newpage
 
-\input{problem.tex}
-\input{related.tex}
-\input{my_solution.tex}
-\input{conclusion.tex}
-
+% Importo le varie parti del documento
+\input{obiettivi.tex}
+\input{app.tex}
 \end{document}
-
-
