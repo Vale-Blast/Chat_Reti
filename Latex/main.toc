@@ -1,0 +1,6 @@
+\select@language {italian}
+\select@language {italian}
+\contentsline {section}{\numberline {1}Presentazione degli obiettivi}{3}
+\contentsline {section}{\numberline {2}Il package app}{4}
+\contentsline {subsection}{\numberline {2.1}La classe Main}{4}
+\contentsline {subsection}{\numberline {2.2}La classe App}{4}

@@ -5,7 +5,14 @@ fino ad arrivare alla gestione delle chiavi. Analizzeremo nei prossimi sotto-par
 le diverse classi nel dettaglio, presentandone i diversi metodi implementati.
 
 \subsection{La classe Main}
-La classe \texttt{Main} è la classe principale dell'applicazione. Si occupa di lanciare il programma
-eseguendo \texttt{run}, ammesso che l'utente abbia effettuato il login in questa o in una precedente
-sessione. In caso contrario, viene fatto scegliere all'utente un nickname da usare nella chat
-e solo dopo il programma viene avviato.
+La classe \texttt{Main} è la classe principale dell'applicazione.
+Si occupa di lanciare il programma eseguendo \texttt{run},
+ammesso che l'utente abbia effettuato il login in questa
+o in una precedente sessione.
+In caso contrario, viene fatto scegliere all'utente un nickname da usare nella chat
+mediante il pannello grafico mostrato in precedenza e,solo dopo questa operazione,
+l'applicazione può essere correttamente utilizzata.
+
+\subsection{La classe App}
+La classe \texttt{App} è la classe che si occupa della creazione e della gestione della
+finestra grafica della chat. I metodi presenti sono i seguenti:
