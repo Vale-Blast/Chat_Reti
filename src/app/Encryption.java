@@ -6,36 +6,36 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
 public class Encryption {
-	
+
 	private static Encryption instance;
-	private File private_key = new File(".private.txt");
-	private File public_key = new File(".public.txt");
+	private File private_key = new File(".private");
+	private File public_key = new File(".public");
 	private String algorithm = "RSA";
-	
+
 	public static Encryption getInstance() {
 		if (instance == null)
 			instance = new Encryption();
 		return instance;
 	}
-	
+
 	private Encryption() {
 		if(!areKeysPresent())
 			generateKeys();
-	}
-	
+		}
+
 
 	/********* areKeysPresent() **********/
 	/**
@@ -52,6 +52,7 @@ public class Encryption {
 	   @brief Generates a couple of private and public keys
 	 */
 	public void generateKeys() {
+		System.out.println("Keys not found");
 	      try {
 	    	  KeyPairGenerator keyGen = KeyPairGenerator.getInstance(algorithm);
 	    	  keyGen.initialize(2048);
@@ -68,8 +69,9 @@ public class Encryption {
 	    	  System.err.println("Error while generating keys");
 	    	  e.printStackTrace();
 	      }
+	      System.out.println("Keys generated");
 	}
-	
+
 	/********** encrypt() **********/
 	/**
 	   @brief Encrypts a message
@@ -100,7 +102,7 @@ public class Encryption {
 	   @param publicKey is the publicKey we want to use
 	   @return is the message encrypted using the key publicKey
 	 */
-	public byte[] encrypt(byte[] message, String publicKey) {
+	/*public byte[] encrypt(byte[] message, String publicKey) {
 		byte[] encrypted = null;
 		try {
 			@SuppressWarnings("resource")
@@ -114,7 +116,7 @@ public class Encryption {
 			e.printStackTrace();
 		}
 		return encrypted;
-	}
+	}*/
 
 	/********** decrypt() **********/
 	/**
@@ -137,14 +139,14 @@ public class Encryption {
 		}
 		return new String(dectyptedText, 0, dectyptedText.length);
 	}
-	
+
 	/********** decryptAttach() **********/
 	/**
 	   @brief Decrypts a message
 	   @param bytes is the message to be decrypted
 	   @return is the message decrypted using my private key
 	 */
-	public byte[] decryptAttach(byte[] bytes) {
+	/*public byte[] decryptAttach(byte[] bytes) {
 		byte[] dectyptedText = null;
 		try {
 			@SuppressWarnings("resource")
@@ -158,6 +160,5 @@ public class Encryption {
 			e.printStackTrace();
 		}
 		return dectyptedText;
-	}
-	
+	}*/
 }

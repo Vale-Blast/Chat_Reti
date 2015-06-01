@@ -23,3 +23,9 @@ Attenzione a:
 
    14) quando mando gli allegati come faccio a sapere il buff_length di chi dovrà ricevere in modo da mandargli il file in un unico
        datagramma?
+
+   15) Chiave asimmetrica può essere usata per massimo 256 perciò si dovrebbe spezzettare tutto in pacchetti da 256 byte
+       (molto sconveniente) oppure usare la chiave simmetrica e scambiarsi la chiave simmetrica criptata con chiave pubblica
+
+   16) Allegati sono mandati in chiaro
+   17) L'ACK è mandato in chiaro e contiene il messaggio ricevuto... non molto sicuro

@@ -9,6 +9,7 @@ import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -36,11 +37,12 @@ public class App implements Runnable {
 	private Size size;
 	private Scan scan;
 	private ChatManager chat_manager;
-	private List<String> hosts;
+	private HashSet<String> hosts;
 	public HashSet<String> senders; // a Set of nicks who sent me an unread message
 	private JPanel messages_panel;
 	private JFrame frame;
 	private JPanel chat_panel = new JPanel();
+	private JScrollPane chat_list;
 	private JButton send;
 	private JButton attach;
 	private String chat_now = ""; // The nick I'm chatting now with
@@ -65,13 +67,6 @@ public class App implements Runnable {
 		chat_manager = ChatManager.getInstance();
 		messages_panel = new JPanel(); //TODO Per ora è vuoto ma in futuro potremmo scrivere qualcosa tipo "apri la chat"
 		messages_panel.setBounds(size.getChats().width, size.getToolbar().height, size.getMessages().width, size.getMessages().height);
-	}
-	
-	public void remove(String ip) {
-		if (ip == "ALL")
-			hosts.clear();
-		else
-			hosts.remove(ip);
 	}
 
 	/********** run() ***********/
@@ -220,7 +215,7 @@ public class App implements Runnable {
 		toolbar.add(refresh);
 		toolbar.add(settings);
 		toolbar.add(exit); // leave last one in the toolbar
-		JScrollPane chat_list = new JScrollPane(chat_panel, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		chat_list = new JScrollPane(chat_panel, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		ChatList();
 		JPanel write_here_panel = new JPanel(null);
 		final JTextArea text = new JTextArea();
@@ -337,10 +332,15 @@ public class App implements Runnable {
 	public void ChatList() {
 		hosts = chat_manager.getHosts();
 		chat_panel.removeAll();
+		chat_panel = new JPanel();
+		chat_list = new JScrollPane(chat_panel, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		chat_panel.setLayout(new GridLayout(hosts.size(), 1));
 		JButton chat[] = new JButton[hosts.size()];
 		Iterator<String> iter = hosts.iterator();
 		int i = 0;
+		if (!iter.hasNext()) {
+			System.out.println("No Host known, hosts.size = " + hosts.size());
+		}
 		while (iter.hasNext()) {
 			final String nick = iter.next();
 			System.out.println("Host: " + nick);
@@ -361,6 +361,8 @@ public class App implements Runnable {
 			++i;
 		}
 		chat_panel.validate();
+		frame.add(chat_list);
+		chat_list.setBounds(0, size.getToolbar().height, size.getChats().width, size.getChats().height);
 		frame.validate();
 		System.out.println("ChatList() done");
 	}
@@ -374,7 +376,12 @@ public class App implements Runnable {
 		int reply = JOptionPane.showConfirmDialog(frame, "Do you really want to quit?",
 				"Confirm quit", JOptionPane.YES_NO_OPTION);
 		if (reply == JOptionPane.YES_OPTION) {
-			scan.broadcast(hosts, "##DOWN##");
+			Iterator<String> iter = hosts.iterator();
+			List<String> everyone = new ArrayList<String>();
+			while (iter.hasNext()) {
+				everyone.add(chat_manager.getAddress(iter.next()));				
+			}
+			scan.broadcast(everyone, "##DOWN##");
 			System.exit(0);
 		}
 	}

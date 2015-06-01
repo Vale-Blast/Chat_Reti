@@ -9,20 +9,18 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
 
-import app.App;
 import app.Encryption;
 
 
 public class Server extends Thread implements Runnable {
 	
 	private static int port = 25023;
-	private int buff_size = 1024 * 1024 * 11; // 11 MB
+	private int buff_size = 256;
 	private static Server instance;
 	private DatagramSocket socket;
 	private ChatManager chat_manager;
 	private String myIP;
 	private Encryption encryption;
-	private App app;
 	
 	/********** getInstance() **********/
 	/**
@@ -68,46 +66,51 @@ public class Server extends Thread implements Runnable {
 	public void run() {
 		byte[] buff;
 		DatagramPacket packet;
-		app = App.getInstance();
 		encryption = Encryption.getInstance();
 		while (true) {
 			buff = new byte[buff_size]; //TODO vedi note.txt 14)
 			packet = new DatagramPacket(buff, buff.length);
 			try {
 				socket.receive(packet); // receive
+				System.out.println(buff.length);
 				String ip = packet.getAddress().getHostAddress();
-				String message;
-				try {
-					message = encryption.decrypt(buff);
-				} catch (Throwable e) {
-					message = new String(buff, 0, buff.length); // Special messages and attachments aren't encrypted
-				}
-				if (!message.startsWith("#")) // It means I recived an attachment
-					chat_manager.attachReceived(buff, ip);
-				else { // Not an attachment
+				String message = new String(buff, 0, buff.length);
+				if (message.startsWith("##")) { // It's a special message, they arent' encrypted
 					System.out.println("Message \"" + message + "\" received from: " + ip);
-					if (message.startsWith("##")) { // It's a special message
-						switch(message.substring(2, 6)) {
-						case "NICK" : {// Nick messages
-							String nick;
-							if (message.lastIndexOf("#$#") == -1) {// #$# is present only when he answers to another nick message, this means he already knows my nick
-								chat_manager.sendIP(ip, "##NICK:" + chat_manager.getMyNick() + "#$#");
-								nick = message.substring(7, message.lastIndexOf("##"));
-							} else
-								nick = message.substring(7, message.lastIndexOf("#$#"));
-							chat_manager.addNickAddress(nick, ip);
-						} break;
-						case "RCVD" : {// Ack messages
-							String m = message.substring(11, message.lastIndexOf("##"));
-							chat_manager.ack(m, ip);
-						} break;
-						case "DOWN" : {// Sender is shutting down
-							app.remove(ip);
-						} break;
-						}
+					switch(message.substring(2, 6)) {
+					case "NICK" : {// Nick messages
+						String nick;
+						if (message.lastIndexOf("#$#") == -1) {// #$# is present only when he answers to another nick message, this means he already knows my nick
+							chat_manager.sendIP(ip, "##NICK:" + chat_manager.getMyNick() + "#$#");
+							nick = message.substring(7, message.lastIndexOf("##"));
+						} else
+							nick = message.substring(7, message.lastIndexOf("#$#"));
+						chat_manager.addNickAddress(nick, ip);
+					} break;
+					case "RCVD" : {// Ack messages
+						String m = message.substring(11, message.lastIndexOf("##"));
+						chat_manager.ack(m, ip);
+					} break;
+					case "DOWN" : {// Sender is shutting down
+						chat_manager.remove(ip);
+					} break;
+					case "RESZ" : {// Sender is going to send me an attachment
+						buff_size = Integer.parseInt(message.substring(7, message.lastIndexOf("##")));
 					}
-					else { // a normal message (no special, no atachment)
-						message = message.substring(1); // removes the # 
+					}
+				} else {
+					try {
+						message = encryption.decrypt(buff);
+					} catch (Throwable e) {
+						message = new String(buff, 0, buff.length); // attachments aren't encrypted
+						System.out.println("Message was uncrypted");
+					}
+					if (!message.startsWith("#")) { // It means I recived an attachment
+						chat_manager.attachReceived(buff, ip);
+						buff_size = 256;
+					}
+					else { // Not an attachment 
+						message = message.substring(1, message.lastIndexOf("#"));
 						System.out.println("Messagio ricevuto: " + message);
 						chat_manager.sendIP(ip, "##RCVD:" + message + "##"); // Sending ack to sender
 						chat_manager.messageReceived(message, ip);
