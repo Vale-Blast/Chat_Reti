@@ -1,0 +1,36 @@
+\section{Il package net}
+Nel package \texttt{net} sono organizzate tutte le classi che si occupano di effettuare e gestire lo
+scambio dei messaggi e di ricercare altri utenti nella rete.
+
+\subsection{Ricerca di utenti}
+La classe che si occupa della scansione è la classe \texttt{scan}. Per effettuare la
+ricerca viene utilizzato \texttt{Nmap},  un software libero distribuito con licenza GNU GPL
+creato originariamente per effettuare port scanning, cioè mirato all'individuazione di porte aperte
+su un computer bersaglio o anche su range di indirizzi IP, in modo da determinare quali
+servizi di rete siano disponibili. Un tipico esempio dell'uso di \texttt{Nmap} è il seguente:
+
+\begin{lstlisting}
+nmap www.google.it
+
+Starting Nmap 6.40 ( http://nmap.org ) at 2015-06-05 09:47 CEST
+Nmap scan report for www.google.it (74.125.206.94)
+Host is up (0.026s latency).
+Not shown: 998 filtered ports
+PORT    STATE SERVICE
+80/tcp  open  http
+443/tcp open  https
+\end{lstlisting}
+
+Nello specifico, poi, per quanto concerne la nostra applicazione, \texttt{Nmap}
+viene utilizzato principalmente per individuare chi utilizza il servizio di messaggistica.
+Per eseguire \texttt{Nmap} viene utilizzata la classe \texttt{Process} di Java.
+Inoltre, quando viene avviata una nuova scansione, tutte le coppie
+$$ \langle \text{Nickname,indirizzo} \rangle $$
+trovate fin'ora vengono buttate via per essere sostituite da quelle identificate per mezzo
+della nuova scansione.
+
+\subsection{Scambio di messaggi}
+Lo scambio di messaggi non sfrutta, come si è intuito dai paragrafi precedenti un'architettura
+client-server, ma il peer-to-peer. Fondamentalmente, tutti i nodi sono equivalenti e possiedono
+un server sempre in ascolto per la ricezione dei messaggi ed un client predisposto, invece, all'invio
+dei messaggi stessi.

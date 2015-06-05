@@ -1,6 +1,12 @@
 \select@language {italian}
 \select@language {italian}
 \contentsline {section}{\numberline {1}Presentazione degli obiettivi}{3}
-\contentsline {section}{\numberline {2}Il package app}{4}
-\contentsline {subsection}{\numberline {2.1}La classe Main}{4}
-\contentsline {subsection}{\numberline {2.2}La classe App}{4}
+\contentsline {section}{\numberline {2}Progetti a confronto}{3}
+\contentsline {section}{\numberline {3}Sviluppo degli Obiettivi}{3}
+\contentsline {section}{\numberline {4}Il package app}{5}
+\contentsline {subsection}{\numberline {4.1}Avvio dell'applicazione}{5}
+\contentsline {subsection}{\numberline {4.2}Interfaccia Grafica}{5}
+\contentsline {subsection}{\numberline {4.3}Criptaggio dei messaggi}{6}
+\contentsline {section}{\numberline {5}Il package net}{6}
+\contentsline {subsection}{\numberline {5.1}Ricerca di utenti}{6}
+\contentsline {subsection}{\numberline {5.2}Scambio di messaggi}{7}

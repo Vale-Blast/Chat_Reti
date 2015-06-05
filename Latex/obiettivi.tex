@@ -1,8 +1,39 @@
 \section{Presentazione degli obiettivi}
-In questa breve trattazione, presenteremo l'implementazione di una semplice
-chat in linguaggio Java, che sfrutta la crittografia asimmetrica per lo scambio dei
-messaggi e l'invio di allegati. La chat realizzata possiede una GUI per l'interazione
+Il nostro progetto per il corso di Reti di Calcolatori si è concentrato sullo sviluppo
+di una applicazione di messaggistica per reti locali (LAN).
+Si è progettato il programma in modo tale da
+sfruttare il protocollo UDP per lo scambio dei messaggi, i quali si ipotizzano essere criptati tramite
+crittografia asimmetrica con chiave pubblica/privata. Per di più, l'applicazione
+è stata pensata per essere in grado di inviare anche allegati (che definiamo, a questo proposito,
+come file generici quali immagini, audio, etc), anch'essi criptati.
+Il programma, teoricamente, deve essere in grado di identificare tutti gli utenti connessi
+alla LAN, così da rendere possibile scegliere con quale utente si desidera chattare,
+similmente a quanto avviene con applicazioni note quali Skype o Telegram Desktop.
+Inoltre deve godere di un'interfaccia grafica intuitiva per semplificare
+le operazioni.
+
+\section{Progetti a confronto}
+L'idea della chat non è di certo innovativa. Ne esistono di molti tipi da diversi anni e
+ognuna di loro ha manifestato il proprio momento di gloria, per poi abbandonare i riflettori
+e dirigere gli utenti verso applicazioni più nuove e immediate.
+
+Nell'ambito dei progetti realizzati in passato per il corso di Reti di Calcolatori,
+in particolare, nel 2006 uno studente ha proposto un servizio di messaggistica su
+connessione cifrata con SSL ad architettura p2p, non realizzando tuttavia tutte le premesse
+e abbandonando quindi l'implementazione della cifratura con SSL e, di conseguenza,
+la gestione dei certificati. Questo lavoro era stato svolto sfruttando la libreria Axis
+di Apache Foundation.
+
+Nel 2014 altri due studenti hanno realizzato una chat prevedendo un'unità centrale che
+potesse immagazzinare i dati strettamente necessari sugli utenti, senza quindi affidare dati
+ridondanti a tutti i client. Il loro obiettivo era quello di creare un servizio che fosse
+a metà fra le chat peer to peer e le chat centralizzate.
+
+\section{Sviluppo degli Obiettivi}
+Quasi tutte le parti poste nella Presentazione degli Obiettivi sono state correttamente
+sviluppate e implementate. La chat realizzata possiede una GUI per l'interazione
 con l'utente avente il seguente aspetto:
+\newpage
 \begin{figure}[h]
 \centering
 \includegraphics[scale=0.4]{gui1.jpg}
@@ -10,7 +41,7 @@ con l'utente avente il seguente aspetto:
 
 Il riquadro in basso permette la scrittura di testo.
 I due tasti laterali ad esso affiancati
-consentono invece di inviare messaggi o allegati.
+consentono invece di inviare messaggi (criptati) o allegati (non criptati).
 In alto sono presenti tre bottoni:
 di essi, quello più a sinistra consente di scandire la rete per la ricerca di eventuali 
 utenti che, in questo momento, stanno utilizzando la chat.
@@ -19,7 +50,7 @@ e ripetuta saltuariamente durante la sua esecuzione.
 Quando un utente viene trovato, nel riquadro a sinistra 
 dell'applicazione viene inserito un pulsante con il suo nickname.
 Cliccandoci sopra, diventa possibile chattare con lui e inviargli messaggi.
-Il bottone al centro, invece, gestisce le impostazioni,
+Il bottone al centro, invece, gestisce le impostazioni (suoni, etc),
 mentre quello più a destra consente di chiudere l'applicazione.
 La prima volta che il programma viene lanciato, inoltre,
 compare una schermata di selezione del login:
@@ -32,7 +63,7 @@ In questa scheda l'utente crea il proprio account, scegliendo un nickname da usa
 e vengono generate le chiavi pubblica e privata. Una volta digitato il nickname, il tasto
 di conferma diventa cliccabile e ed è possibile iniziare ad usare l'applicazione.
 
-In questa relazione, analizzeremo le varie classi della codifica proposta,
+In questa relazione, analizzeremo a grandi linee la codifica proposta,
 con particolare enfasi sul ruolo giocato da ognuna di esse.
 Mostreremo, poi, i risultati ottenuti e, infine,
 il funzionamento dell'intero programma qui presentato,
