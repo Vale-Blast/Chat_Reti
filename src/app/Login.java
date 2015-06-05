@@ -61,7 +61,7 @@ public class Login {
 						ret = true;
 					}
 				} break;
-				case "TTos" : 
+				case "TToS" : 
 					scan.setSleep(Integer.parseInt(line.substring(6)));
 					break;
 				case "EMPT" :

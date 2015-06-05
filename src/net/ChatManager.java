@@ -17,11 +17,14 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
+import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.DataLine;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
@@ -44,7 +47,7 @@ public class ChatManager {
 	private AudioInputStream audio;
 	private Clip clip;
 	private boolean music_ok;
-	private String sound = "resources/Din Don.wav";
+	private String sound = "resources/Don.wav";
 	
 	public void play() {
 		if (music_ok)
@@ -62,7 +65,9 @@ public class ChatManager {
 		this.sound = sound;
 		try {
 			audio = AudioSystem.getAudioInputStream(new File(sound));
-			clip = AudioSystem.getClip();
+			AudioFormat format = audio.getFormat();
+			DataLine.Info info = new DataLine.Info(Clip.class, format);
+			clip = (Clip) AudioSystem.getLine(info);
 			clip.open(audio);
 		} catch (Throwable e) {
 			System.err.println("Error while loading audio file");
@@ -148,6 +153,15 @@ public class ChatManager {
 		app.ChatList();
 		System.out.println("addNickAddress(" + nick + ", " + address + ") done");
 	}
+	
+	public void remove(String ip) {
+		System.out.println("Removing " + ip);
+		if (ip == "ALL")
+			nick_address.clear();
+		else
+			nick_address.remove(getNick(ip));
+		app.ChatList();
+	}
 
 	/********** getAddress() **********/
 	/**
@@ -179,11 +193,11 @@ public class ChatManager {
 	   @brief Gets the list of reachable hosts
 	   @return list is the list of reachable hosts
 	 */
-	public List<String> getHosts() {
-		List<String> list = new ArrayList<>();
+	public HashSet<String> getHosts() {
+		HashSet<String> set = new HashSet<String>();
 		if (!nick_address.isEmpty())
-			list.addAll(nick_address.keySet());
-		return list;
+			set.addAll(nick_address.keySet());
+		return set;
 	}
 	
 	/********** timestamp() **********/
@@ -276,7 +290,7 @@ public class ChatManager {
        @param message is the message to be sent
      */
 	public void send(String nick, String message) {
-		byte[] buff = encryption.encrypt("#" + message, ".keys/." + nick + ".txt");
+		byte[] buff = encryption.encrypt("#" + message + "#", ".keys/." + nick);
 		String address = nick_address.get(nick);
 		//System.out.println("buff = " + buff + ", address = " + address);
 		DatagramSocket sock = null;
@@ -376,11 +390,12 @@ public class ChatManager {
 	 * @throws FileNotFoundException 
 	 */
 	public void attach(File file, String nick) throws FileNotFoundException {
+		String address = nick_address.get(nick);
+		sendIP(address, "##RESZ:" + file.length() + "##");
 		InputStream to_send = new FileInputStream(file);
 		byte buf[] = new byte[(int) file.length()]; //TODO VEDI note.txt 14) conversion it's okay because max_int in java is 2^31 and 2^31 B ==> 2 GB
 		try {
 			to_send.read(buf);
-			String address = nick_address.get(nick);
 			//System.out.println("buff = " + buff + ", address = " + address);
 			DatagramPacket packet = new DatagramPacket(buf, buf.length, new InetSocketAddress(address, server.getPort()));
 			DatagramSocket sock = null;
@@ -428,7 +443,7 @@ public class ChatManager {
 	   @param ip
 	 */
 	public void attachReceived(byte[] buff, String address) {
-		clip.loop(1);
+		play();
 		JFileChooser jfc = new JFileChooser("attachments/");
 		int res = jfc.showSaveDialog(null);
 		if (res == 0) {
