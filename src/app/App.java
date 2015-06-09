@@ -338,9 +338,6 @@ public class App implements Runnable {
 		JButton chat[] = new JButton[hosts.size()];
 		Iterator<String> iter = hosts.iterator();
 		int i = 0;
-		if (!iter.hasNext()) {
-			System.out.println("No Host known, hosts.size = " + hosts.size());
-		}
 		while (iter.hasNext()) {
 			final String nick = iter.next();
 			System.out.println("Host: " + nick);
