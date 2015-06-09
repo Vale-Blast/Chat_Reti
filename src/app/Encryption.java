@@ -21,8 +21,8 @@ import javax.crypto.NoSuchPaddingException;
 public class Encryption {
 
 	private static Encryption instance;
-	private File private_key = new File(".private");
-	private File public_key = new File(".public");
+	private File private_key = new File(".private.pem");
+	private File public_key = new File(".public.pem");
 	private String algorithm = "RSA";
 
 	public static Encryption getInstance() {
