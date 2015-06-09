@@ -290,7 +290,7 @@ public class ChatManager {
        @param message is the message to be sent
      */
 	public void send(String nick, String message) {
-		byte[] buff = encryption.encrypt("#" + message + "#", ".keys/." + nick);
+		byte[] buff = encryption.encrypt("#" + message + "#", ".keys/." + nick + ".pem");
 		String address = nick_address.get(nick);
 		//System.out.println("buff = " + buff + ", address = " + address);
 		DatagramSocket sock = null;
