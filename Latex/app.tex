@@ -39,7 +39,7 @@ una stringa del tipo:
 $$ \texttt{NICK: nickname} $$
 insieme ad altre informazioni di configurazione, quali time to sleep, buffer lenght, etc.
 
-\subsection{Criptaggio dei messaggi}
+\subsection{Cifratura dei messaggi}
 La classe principale che implementa la cifratura dei messaggi è la classe \texttt{Encryption}.
 La codifica sfrutta l'algoritmo a chiave pubblica RSA (dal nome di coloro che
 lo hanno proposto, Rivest, Shamir, Adleman), il quale utilizza operazioni in modulo per generare
@@ -47,3 +47,6 @@ le chiavi e l'assunzione che violare la chiave privata sia un problema computazi
 trattabile. Per realizzarlo, è stata usata la classe \texttt{KeyPair} di Java, che permette di
 generare una coppia di chiavi (pubblica e privata). Queste vengono estrette e salvate in locale su
 due file nascosti \texttt{.public} e \texttt{.private} e usate poi per criptare e decriptare i messaggi.
+Ogni utente possiede una coppia di chiavi, quindi se un utente A deve spedire un messaggio
+ad un utente B, quest'ultimo deve possedere la chiave pubblica di A per poter decifrare
+il messaggio, una volta ricevuto.

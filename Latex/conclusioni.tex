@@ -1,0 +1,32 @@
+\section{Conclusioni e sviluppi futuri}
+Il lavoro svolto ha permesso un completo sviluppo di un'applicazione di
+messaggistica pienamente funzionante e operativa su reti locali. I test
+fatti in locale e su VPN hanno dato risultati soddisfacenti permettendo un
+pieno scambio di messaggi e file (si è testato, ad esempio, l'invio di
+una semplice immagine). L'uso dell'interfaccia grafica realizzata con
+SWING - siamo certi - permette una visualizzazione rapida dei messaggi
+e semplifica molto l'uso dell'applicazione anche ad
+utenti meno avvezzi all'uso di un terminale.
+
+Nonostante l'applicazione abbia raggiunto una certa solidità,
+numerosi sono i possibili interventi da attuare per migliorarla.
+Sarebbe interessante criptare anche gli allegati oltre che i
+messaggi al fine di garantire una maggiore riservatezza.
+Inoltre i file contenenti le chat sono memorizzati sul PC
+dell'utente in chiaro, il che li rende vulnerabili.
+Di fatto, si potrebbero cifrare e decifrare ogni volta che viene chiamato
+il metodo \texttt{openChat} (ossia ogni volta che viene premuto
+un pulsante nella barra a sinistra dell'applicazione), introducendo
+tuttavia in questo modo un overhead che, durante lo sviluppo, abbiamo
+deciso di non aggiungere per non appesantire ulteriormente il programma.
+Un altro problema presente che potrebbe essere risolto in futuro è il seguente:
+la cronologia dei messaggi viene salvata, come detto precedentemente, in un
+file
+$$ \texttt{nickname.txt} $$
+Questa decisione sta in piedi fintanto che non esistono due utenti con lo stesso nickname,
+nel qual caso una sovrapposizione è inevitabile, portando alla perdita definitiva
+di uno dei due storici. Una soluzione ipotizzata comporta l'inserimento di
+un server centrale predisposto alla gestione dei nickname.
+Altri miglioramenti attuabili riguardano poi prettamente l'interfaccia
+grafica del programma, inserendo la possibilità di cambiare colori,
+trasformando i messaggi in nuvolette, e così via.
