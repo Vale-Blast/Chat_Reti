@@ -4,7 +4,7 @@ scambio dei messaggi e di ricercare altri utenti nella rete.
 
 \subsection{Ricerca di utenti}
 La classe che si occupa della scansione è la classe \texttt{scan}. Per effettuare la
-ricerca viene utilizzato \texttt{Nmap},  un software libero distribuito con licenza GNU GPL
+ricerca viene utilizzato \texttt{Nmap} (\url{http://nmap.org/}),  un software libero distribuito con licenza GNU GPL
 creato originariamente per effettuare port scanning, cioè mirato all'individuazione di porte aperte
 su un computer bersaglio o anche su range di indirizzi IP, in modo da determinare quali
 servizi di rete siano disponibili. Un tipico esempio dell'uso di \texttt{Nmap} è il seguente:
@@ -23,14 +23,28 @@ PORT    STATE SERVICE
 
 Nello specifico, poi, per quanto concerne la nostra applicazione, \texttt{Nmap}
 viene utilizzato principalmente per individuare chi utilizza il servizio di messaggistica.
-Per eseguire \texttt{Nmap} viene utilizzata la classe \texttt{Process} di Java.
-Inoltre, quando viene avviata una nuova scansione, tutte le coppie
+Per eseguire \texttt{Nmap} viene adoperata la classe \texttt{Process} di Java.
+Quando viene avviata una nuova scansione, tutte le coppie
 $$ \langle \text{Nickname,indirizzo} \rangle $$
-trovate fin'ora vengono buttate via per essere sostituite da quelle identificate per mezzo
-della nuova scansione.
+trovate vengono salvate e mostrate nella barra laterale sinistra della GUI, come già
+anticipato sopra.
 
 \subsection{Scambio di messaggi}
 Lo scambio di messaggi non sfrutta, come si è intuito dai paragrafi precedenti un'architettura
 client-server, ma il peer-to-peer. Fondamentalmente, tutti i nodi sono equivalenti e possiedono
 un server sempre in ascolto per la ricezione dei messaggi ed un client predisposto, invece, all'invio
-dei messaggi stessi.
+dei messaggi stessi. Abbiamo creato dunque una classe \texttt{Message} che implementa l'ADT
+\textit{messaggio}, contenente fondamentalmente un campo di tipo stringa per il testo, un campo
+per la data e un capo \texttt{tipo} posto a $0$ se il messaggio è ricevuto e posto a $1$ se inviato.
+
+Lo scambio vero e proprio è implementato invece nelle classi \texttt{Chat\char`_manager} e \texttt{Server},
+cuore dell'intero programma. Nella prima vengono settati i suoni, avviato il server, avviata la scansione
+con \texttt{Nmap} della rete locale, aggiunti eventuali altri utenti che usano la chat, etc. Inoltre
+è presente l'indispensabile metodo \texttt{send} che invia messaggi con Datagram Socket. Ad ogni
+invio segue un acknowlegement di conferma di avvenuta ricezione.
+Il metodo \texttt{attach} invece consente la gestione corretta degli allegati: un file viene, di
+fatto, convertito in un flusso di byte, inglobato in Datagram Socket e inviato senza essere stato cifrato.
+
+La classe \texttt{Server}, d'altro canto, ha come scopo principale quello di avviare il server
+inizializzando poi un campo myIP e permettendo dunque ad altri utenti di poterlo identificare.
+Dopodiché si addormenta, mettendosi in attesa di messaggi.
