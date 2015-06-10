@@ -10,12 +10,15 @@ nei prossimi sotto-paragrafi l'uso delle singole classi.
 \subsection{Avvio dell'applicazione}
 La classe \texttt{Main} è la classe principale dell'applicazione.
 Possiede un unico metodo \texttt{main} che
-si occupa di lanciare il programma eseguendo \texttt{run},
-ammesso che l'utente abbia effettuato il login in questa
-o in una precedente sessione.
-In caso contrario, viene fatto scegliere all'utente un nickname da usare nella chat
-mediante il pannello grafico mostrato in precedenza e,solo dopo questa operazione,
-l'applicazione può essere correttamente utilizzata.
+si occupa di:
+\begin{enumerate}
+	\item caricare il nickname da file assieme alle impostazioni o richiederlo tramite la
+	schermata vista in precedenza se non è presente
+	\item controllare la presenza delle chiavi e se necessario crearle
+	\item controllare la presenza di tutte le directory necessarie all'esecuzione e creare 
+	quelle mancanti
+	\item eseguire il metodo \texttt{run} per far partire l'applicazione vera e propria
+\end{enumerate}
 
 \subsection{Interfaccia Grafica}
 La classe \texttt{App}, che implementa \texttt{Runnable}, si occupa della
@@ -27,26 +30,26 @@ solo: le conversazioni avvenute fra gli utenti vengono salvate in locale e, se
 la conversazione con un utente già noto viene ripresa in un qualche futuro, allora
 i precedenti messaggi scambiati con lui sono caricati da un file del tipo
 $$ \texttt{nickname.txt} $$ 
-e mostrati nella schermata principale dell'applicazione.
-
+e mostrati nella schermata principale dell'applicazione grazie al metodo \texttt{openChat()}.
 Il file di configurazione \texttt{.chat}, invece, è un file che permette di
 tenere traccia del nickname dell'utente. Quando avvia l'applicazione per la
-prima volta, infatti, compare la schermata grafica mostrata in precedenza per l'inserimento
+prima volta, infatti, compare la schermata grafica di login\ref{fig:login} per l'inserimento
 di un username. Il tasto \texttt{OK} è disabilitato fintanto che l'utente non ha
 scritto almeno una stringa valida, ossia una stringa più lunga di zero caratteri.
 Premendo il tasto di conferma, viene salvata nel file con estensione \texttt{.chat}
 una stringa del tipo:
 $$ \texttt{NICK: nickname} $$
-insieme ad altre informazioni di configurazione, quali time to sleep, buffer lenght, etc.
+insieme ad altre informazioni di configurazione, viste in precedenza.
 
 \subsection{Cifratura dei messaggi}
 La classe principale che implementa la cifratura dei messaggi è la classe \texttt{Encryption}.
 La codifica sfrutta l'algoritmo a chiave pubblica RSA (dal nome di coloro che
 lo hanno proposto, Rivest, Shamir, Adleman), il quale utilizza operazioni in modulo per generare
-le chiavi e l'assunzione che violare la chiave privata sia un problema computazionalmente non
-trattabile. Per realizzarlo, è stata usata la classe \texttt{KeyPair} di Java, che permette di
-generare una coppia di chiavi (pubblica e privata). Queste vengono estrette e salvate in locale su
-due file nascosti \texttt{.public} e \texttt{.private} e usate poi per criptare e decriptare i messaggi.
+le chiavi. Per violare la chiave privata bisognerebbe effettuare un attacco a "forza bruta"
+generando quindi un problema computazionalmente non trattabile. Per realizzarle, è stata usata
+la classe \texttt{KeyPair} di Java, che permette di generare una coppia di chiavi (pubblica e privata).
+Queste vengono estrette e salvate in locale su due file nascosti \texttt{.public.pem} e
+\texttt{.private.pem} e usate poi per criptare e decriptare i messaggi.
 Ogni utente possiede una coppia di chiavi, quindi se un utente A deve spedire un messaggio
-ad un utente B, quest'ultimo deve possedere la chiave pubblica di A per poter decifrare
-il messaggio, una volta ricevuto.
+ad un utente B, è necessario che A possieda la chiave pubblica di B con la quale cripterà quindi il
+messaggio in modo che solo B possa decriptarlo usando la sua chiave privata.

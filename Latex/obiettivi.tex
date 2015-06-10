@@ -29,14 +29,15 @@ potesse immagazzinare i dati strettamente necessari sugli utenti, senza quindi a
 ridondanti a tutti i client. Il loro obiettivo era quello di creare un servizio che fosse
 a metà fra le chat peer to peer e le chat centralizzate.
 
+\newpage
 \section{Sviluppo degli Obiettivi}
 Quasi tutte le parti poste nella Presentazione degli Obiettivi sono state correttamente
 sviluppate e implementate. La chat realizzata possiede una GUI per l'interazione
 con l'utente avente il seguente aspetto:
-\newpage
 \begin{figure}[h]
 \centering
 \includegraphics[scale=0.4]{gui1.jpg}
+\label{fig:gui}
 \end{figure}
 
 Il riquadro in basso permette la scrittura di testo.
@@ -44,27 +45,49 @@ I due tasti laterali ad esso affiancati
 consentono invece di inviare messaggi (criptati) o allegati (non criptati).
 In alto sono presenti tre bottoni:
 di essi, quello più a sinistra consente di scandire la rete per la ricerca di eventuali 
-utenti che, in questo momento, stanno utilizzando la chat.
+utenti che, in questo momento, stanno utilizzando la chat, tali utenti vengono salvati
+in una lista di utenti conosciuti.
 Tale scansione viene in ogni caso eseguita in automatico all'avvio del programma
-e ripetuta saltuariamente durante la sua esecuzione.
+e ripetuta periodicamente durante la sua esecuzione per aggiornare tale lista.
 Quando un utente viene trovato, nel riquadro a sinistra 
 dell'applicazione viene inserito un pulsante con il suo nickname.
 Cliccandoci sopra, diventa possibile chattare con lui e inviargli messaggi.
-Il bottone al centro, invece, gestisce le impostazioni (suoni, etc),
-mentre quello più a destra consente di chiudere l'applicazione.
-La prima volta che il programma viene lanciato, inoltre,
-compare una schermata di selezione del login:
+Il bottone al centro, invece, apre un'altra piccola finestra.
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.3]{settings.png}
+\end{figure}
+
+Questa finestra gestisce le impostazioni e da qui l'utente può regolare:
+\begin{itemize}
+	\item ogni quanti secondi far eseguire la scansione della rete
+	\item ogni quante scansioni svuotare completamente l'insieme degli host conosciuti 
+	in modo da non conservare inutilmente host non più presenti nella LAN o che abbiano
+	chiuso l'applicazione.
+	\item cambiare il suono di notifica che verrà riprodotto all'arrivo di un messaggio	
+\end{itemize}
+Il pulsante mentre quello più a destra consente di chiudere l'applicazione, prima della
+chiusura verrà mostrato un messaggio di conferma per chiedere all'utente se vuole chiudere
+l'applicazione. Prima di essere chiusa l'applicazione manda a tutti gli host conosciuti
+un messaggio speciale \emph{\#\#DOWN\#\#} in modo che gli altri host sulla LAN sappiano che si
+sta disconnettendo e lo tolgano subito dalla lista degli host conosciuti.
+All'avvio del programma si cerca il file di configurazione e si cerca di
+leggere il nome utente e le impostazioni. In caso non venga trovato il file o il nome utente
+non sia presente (è il primo accesso fatto dall'utente) compare una schermata di login:
 \begin{figure}[h]
 \centering
 \includegraphics[scale=0.5]{login1.jpg}
+\label{fig:login}
 \end{figure}
 
-In questa scheda l'utente crea il proprio account, scegliendo un nickname da usare in chat
-e vengono generate le chiavi pubblica e privata. Una volta digitato il nickname, il tasto
-di conferma diventa cliccabile e ed è possibile iniziare ad usare l'applicazione.
+In questa scheda l'utente crea il proprio account, scegliendo un nickname da usare in chat.
+Una volta digitato il nickname, il tasto di conferma diventa cliccabile e premendolo si effettua
+il login ed è possibile iniziare ad usare l'applicazione.
+Viene poi controllata la presenza della coppia di chiavi e nel caso non siano presenti vengono create.
 
-In questa relazione, analizzeremo a grandi linee la codifica proposta,
-con particolare enfasi sul ruolo giocato da ognuna di esse.
+In questa relazione, analizzeremo a grandi linee la codifica proposta e l'implementazione
+delle varie classi, con particolare enfasi sul ruolo giocato da ognuna di esse.
 Mostreremo, poi, i risultati ottenuti e, infine,
 il funzionamento dell'intero programma qui presentato,
 esponendo anche i test fatti in corso d'opera

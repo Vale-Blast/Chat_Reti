@@ -3,11 +3,12 @@ Nel package \texttt{net} sono organizzate tutte le classi che si occupano di eff
 scambio dei messaggi e di ricercare altri utenti nella rete.
 
 \subsection{Ricerca di utenti}
-La classe che si occupa della scansione è la classe \texttt{scan}. Per effettuare la
-ricerca viene utilizzato \texttt{Nmap} (\url{http://nmap.org/}),  un software libero distribuito con licenza GNU GPL
-creato originariamente per effettuare port scanning, cioè mirato all'individuazione di porte aperte
-su un computer bersaglio o anche su range di indirizzi IP, in modo da determinare quali
-servizi di rete siano disponibili. Un tipico esempio dell'uso di \texttt{Nmap} è il seguente:
+La classe che si occupa della scansione è la classe \texttt{Scan}. Per effettuare la
+ricerca viene utilizzato \texttt{Nmap} (\url{http://nmap.org/}),  un software libero distribuito
+con licenza GNU GPL creato originariamente per effettuare port scanning, cioè mirato
+all'individuazione di porte aperte su un computer bersaglio o anche su range di indirizzi IP,
+in modo da determinare quali servizi di rete siano disponibili. Un tipico esempio dell'uso
+di \texttt{Nmap} è il seguente:
 
 \begin{lstlisting}
 nmap www.google.it
@@ -22,29 +23,69 @@ PORT    STATE SERVICE
 \end{lstlisting}
 
 Nello specifico, poi, per quanto concerne la nostra applicazione, \texttt{Nmap}
-viene utilizzato principalmente per individuare chi utilizza il servizio di messaggistica.
+viene utilizzato principalmente per individuare quali host sono presenti nella LAN.
 Per eseguire \texttt{Nmap} viene adoperata la classe \texttt{Process} di Java.
-Quando viene avviata una nuova scansione, tutte le coppie
-$$ \langle \text{Nickname,indirizzo} \rangle $$
-trovate vengono salvate e mostrate nella barra laterale sinistra della GUI, come già
-anticipato sopra.
+Quando viene avviata una nuova scansione si invia a tutti gli host raggiungibili in LAN
+un messaggio del tipo \emph{\#\#NICK:$nickname$\#\#} in cui "nickname" rappresenta il nickname
+dell'utente. Chi lo riceve risponderà con il proprio nickname. Tutte le coppie degli 
+host raggiungibili che hanno risposto vengono salvate tra gli host conosciuti in una mappa
+a doppia chiave come coppia 
+$$ \langle \text{Nickname, Indirizzo} \rangle $$
+e vengono mostrati nella barra laterale sinistra della GUI, come già anticipato sopra, i
+nickname di tutti gli host conosciuti. Osserviamo in particolare che la classe \texttt{Scan}
+estende la classe \texttt{Thread} costituendo quindi un thread a parte rispetto al resto
+dell'applicazione.
 
 \subsection{Scambio di messaggi}
 Lo scambio di messaggi non sfrutta, come si è intuito dai paragrafi precedenti un'architettura
 client-server, ma il peer-to-peer. Fondamentalmente, tutti i nodi sono equivalenti e possiedono
-un server sempre in ascolto per la ricezione dei messaggi ed un client predisposto, invece, all'invio
-dei messaggi stessi. Abbiamo creato dunque una classe \texttt{Message} che implementa l'ADT
+un thread server sempre in ascolto per la ricezione dei messaggi ed un client predisposto, invece, all'invio
+dei messaggi stessi. Abbiamo creato dunque una classe \texttt{Message} che implementa l'ADT (Abstract Data Type)
 \textit{messaggio}, contenente fondamentalmente un campo di tipo stringa per il testo, un campo
-per la data e un capo \texttt{tipo} posto a $0$ se il messaggio è ricevuto e posto a $1$ se inviato.
+per la data e un capo \texttt{tipo} posto a $0$ se il messaggio è stato ricevuto e posto a $1$ se inviato.
 
 Lo scambio vero e proprio è implementato invece nelle classi \texttt{Chat\char`_manager} e \texttt{Server},
-cuore dell'intero programma. Nella prima vengono settati i suoni, avviato il server, avviata la scansione
-con \texttt{Nmap} della rete locale, aggiunti eventuali altri utenti che usano la chat, etc. Inoltre
-è presente l'indispensabile metodo \texttt{send} che invia messaggi con Datagram Socket. Ad ogni
-invio segue un acknowlegement di conferma di avvenuta ricezione.
-Il metodo \texttt{attach} invece consente la gestione corretta degli allegati: un file viene, di
-fatto, convertito in un flusso di byte, inglobato in Datagram Socket e inviato senza essere stato cifrato.
+cuore dell'intero programma. Nella prima vengono svolti vari compiti:
+\begin{itemize}
+	\item caricamento, e eventualmente aggiornamento, del file audio che verrà poi riprodotto per notificare 
+	l'arrivo di un messaggio o di un allegato.
+	\item avvio dei thread relativi alla classe \texttt{Server} e alla classe \texttt{Scan}
+	\item creazione, aggiornamento e gestine della struttura dati \emph{HashBiMap} usata per memorizzare gli host
+	conosciuti
+	\item invio dei messaggi e degli allegati (alla pressione dei pulsanti mostrati nella figura \ref{fig:gui})
+	tramite i metodi \texttt{send()} e \texttt{attach()}
+	\item la gestione di una mappa a doppia chiave, realizzata anch'essa tramite la classe \texttt{HashBiMap},
+	per contenere i messaggi inviati che si è sicuri dell'arrivo. A ogni invio la coppia 
+	$$ \langle \text{Destinatario, Messaggio} \rangle$$
+	è aggiunta alla mappa e verrà tolta dalla struttura dati solo alla ricezione di un ack da quel destinatario
+	per quel messaggio. L'invio di qualsiasi tipo di messaggio (messaggio normale, allegato, messaggio "speciale")
+	è effettuato tramite la classe \texttt{DatagramSocket} via UDP.
+\end{itemize}
+I messaggi speciali sono dei messaggi usati per la sincronizzazione tra gli host e la gestione della rete:
+\begin{itemize}
+	\item[\emph{\#\#NICK:$nickname$\#\#}] Come visto prima questo messaggio viene inviato dalla classe \texttt{Scan}
+	a tutti gli host raggiungibili in modo che conoscano il nickname dell'utente.
+	\item[\emph{\#\#NICK:$nickname$\#\$\#}] Questo messaggio viene inviato in automatico dalla classe \texttt{Server}
+	come risposta alla ricezione di un messaggio \emph{\#\#NICK:$nickname$\#\#}, è codificato in maniera diversa dal
+	precedente in modo che il Server della controparte non risponda a tale messaggio.
+	\item[\emph{\#\#RESZ:$size$\#\#}] Questo messaggio viene inviato appena prima dell'invio di un allegato in modo che
+	il Server del destinatario allarghi in automatico il buffer di ricezione abbastanza da ricevere l'allegato.
+	Tale buffer verrà poi in automatico reimpostato al default di 256 Byte.
+	\item[\emph{\#\#RCVD:$message$\#\#}] È l'ACK nominato sopra che il Server invia in automatico alla ricezione di un
+	messaggio (né allegato né messaggio speciale) al mittente in modo da fargli sapere che il messaggio è stato
+	ricevuto.
+	\item[\emph{\#\#DOWN\#\#}] Come detto precedentemente è il messaggio che l'applicazione manda a tutti gli host
+	conosciuti appena prima di essere chiusa.
+\end{itemize}
 
-La classe \texttt{Server}, d'altro canto, ha come scopo principale quello di avviare il server
-inizializzando poi un campo myIP e permettendo dunque ad altri utenti di poterlo identificare.
-Dopodiché si addormenta, mettendosi in attesa di messaggi.
+La classe \texttt{Server} ha come scopo principale quello di avviare il server
+inizializzando poi il campo myIP e permettendo dunque ad altri utenti di poterlo identificare.
+Dopodiché si mette in attesa di eventuali datagrammi. Alla ricezione di ogni datagramma controlla se
+è criptato (messaggi) o in chiaro (allegati e messaggi speciali) e se necessario lo decripta. 
+I messaggi speciali, come visto precedentemente, vengono gestiti in automatico dal Server, per i
+messaggi e per gli allegati viene invece interpellata la classe \texttt{Chat\char`_manager} che riprodurrà
+il suono di notifica e salverà nel file \emph{$nickname$.txt} il messaggio o il nome dell'allegato. In caso di 
+allegato aprirà automaticamente una finestra per chiedere all'utente dove salvare l'allegato ricevuto.
+Se invece si tratta di un messaggio e la chat con l'host mittente è già aperta viene aggiornata la schermata e 
+aggiunto il messaggio alla chat visualizzata. Nel caso non sia attualmente aperta la chat con l'host
+mittente oltre alla riproduzione del suono di notifica viene colorato di rosso il bottone laterale.
