@@ -115,7 +115,7 @@ public class App implements Runnable {
 				tts_label.setBounds(hOffset, vpadd, size.getSettings().width*4/5, size.getSettings().height/10);
 				final JTextField tts_field = new JTextField("" + scan.getSleep());
 				tts_field.setBounds(hOffset, vpadd*3/2 + size.getSettings().height/10, size.getSettings().width*4/5, size.getSettings().height/10);
-				JLabel empty_label = new JLabel("Number of iterations to empty hosts list:");
+				JLabel empty_label = new JLabel("Number of iterations to empty hosts list, insert 0 to disable:");
 				empty_label.setBounds(hOffset, vpadd*5/2 + size.getSettings().height/5, size.getSettings().width*4/5, size.getSettings().height/10);
 				final JTextField empty_field = new JTextField("" + scan.getEmpty());
 				empty_field.setBounds(hOffset, vpadd*3 + size.getSettings().height*3/10, size.getSettings().width*4/5, size.getSettings().height/10);
@@ -331,6 +331,7 @@ public class App implements Runnable {
 	 */
 	public void ChatList() {
 		hosts = chat_manager.getHosts();
+		frame.remove(chat_list);
 		chat_panel.removeAll();
 		chat_panel = new JPanel();
 		chat_list = new JScrollPane(chat_panel, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -348,13 +349,15 @@ public class App implements Runnable {
 				else
 					chat[i].setBackground(Color.red); // Red color if this nick sent me unread messages but I'm not talking with him
 			}
+			System.out.println("Clicked");
 			chat[i].addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent arg0) {	
+				public void actionPerformed(ActionEvent arg0) {
+					System.out.println("Clicked");
 					openChat(nick);
 				}
 			});
 			chat_panel.add(chat[i]);
+			chat[i].validate();
 			++i;
 		}
 		chat_panel.validate();
@@ -363,7 +366,7 @@ public class App implements Runnable {
 		frame.validate();
 		System.out.println("ChatList() done");
 	}
-	
+
 	/********** exit() **********/
 	/**
 	   @brief This method asks confirm yes/no, if you want to exit he broadcasts all hosts he's going to

@@ -61,13 +61,16 @@ public class Scan extends Thread implements Runnable {
 		 */
 		@Override
 		public void run() {
-			long c = 0;
+			long c = 1;
 			while (true) {
 				try {
 					scan();
+					System.out.println("Scan going to sleep: " + sleep + " seconds");
 					sleep(sleep * 1000);
-					if (c % empty == 0)
+					System.out.println("Scan woke up, scanning the net");
+					if (c % empty == 0 && empty != 0)
 						chat_manger.remove("ALL");
+					c++;
 				} catch (InterruptedException e) {
 					System.out.println("Interrup network scanning");
 				}
