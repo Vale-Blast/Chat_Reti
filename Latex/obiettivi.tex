@@ -47,8 +47,8 @@ In alto sono presenti tre bottoni:
 di essi, quello più a sinistra consente di scandire la rete per la ricerca di eventuali 
 utenti che, in questo momento, stanno utilizzando la chat, tali utenti vengono salvati
 in una lista di utenti conosciuti.
-Tale scansione viene in ogni caso eseguita in automatico all'avvio del programma
-e ripetuta periodicamente durante la sua esecuzione per aggiornare tale lista.
+La scansione viene in ogni caso eseguita in automatico all'avvio del programma
+e ripetuta periodicamente durante la sua esecuzione per aggiornare la suddetta lista.
 Quando un utente viene trovato, nel riquadro a sinistra 
 dell'applicazione viene inserito un pulsante con il suo nickname.
 Cliccandoci sopra, diventa possibile chattare con lui e inviargli messaggi.
@@ -61,15 +61,15 @@ Il bottone al centro, invece, apre un'altra piccola finestra.
 \end{figure}
 Questa finestra gestisce le impostazioni e da qui l'utente può regolare:
 \begin{itemize}
-	\item ogni quanti secondi far eseguire la scansione della rete
+	\item ogni quanti secondi far eseguire la scansione della rete;
 	\item ogni quante scansioni svuotare completamente l'insieme degli host conosciuti 
 	in modo da non conservare inutilmente host non più presenti nella LAN o che abbiano
-	chiuso l'applicazione.
-	\item cambiare il suono di notifica che verrà riprodotto all'arrivo di un messaggio	
+	chiuso l'applicazione;
+	\item cambiare il suono di notifica che verrà riprodotto all'arrivo di un messaggio.
 \end{itemize}
-I pulsante più a destra invece consente di chiudere l'applicazione, prima della
-chiusura verrà mostrato un messaggio di conferma per chiedere all'utente se vuole chiudere
-l'applicazione. Prima di essere chiusa l'applicazione manda a tutti gli host conosciuti
+I pulsante più a destra invece consente di chiudere l'applicazione. Prima della
+chiusura verrà mostrato un messaggio di conferma per chiedere all'utente se vuole davvero terminare
+l'applicazione. Prima di essere chiuso, il programma manda a tutti gli host conosciuti
 un messaggio speciale \emph{\#\#DOWN\#\#} in modo che gli altri host sulla LAN sappiano che si
 sta disconnettendo e lo tolgano subito dalla lista degli host conosciuti.
 All'avvio del programma si cerca il file di configurazione e si cerca di
@@ -82,8 +82,8 @@ non sia presente (è il primo accesso fatto dall'utente) compare una schermata d
 \end{figure}
 
 In questa scheda l'utente crea il proprio account, scegliendo un nickname da usare in chat.
-Una volta digitato il nickname, il tasto di conferma diventa cliccabile e premendolo si effettua
-il login ed è possibile iniziare ad usare l'applicazione.
+Una volta digitato il nickname, il tasto di conferma diventa abilitato e premendolo si effettua
+il login, consentendo finalmente l'uso vero e proprio dell'applicazione.
 Viene poi controllata la presenza della coppia di chiavi e nel caso non siano presenti vengono create.
 \\
 
