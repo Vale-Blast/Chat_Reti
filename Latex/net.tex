@@ -21,7 +21,8 @@ PORT    STATE SERVICE
 80/tcp  open  http
 443/tcp open  https
 \end{lstlisting}
-
+\leavevmode
+\\
 Nello specifico, poi, per quanto concerne la nostra applicazione, \texttt{Nmap}
 viene utilizzato principalmente per individuare quali host sono presenti nella LAN.
 Per eseguire \texttt{Nmap} viene adoperata la classe \texttt{Process} di Java.
@@ -63,19 +64,19 @@ cuore dell'intero programma. Nella prima vengono svolti vari compiti:
 \end{itemize}
 I messaggi speciali sono dei messaggi usati per la sincronizzazione tra gli host e la gestione della rete:
 \begin{itemize}
-	\item[\emph{\#\#NICK:$nickname$\#\#}] Come visto prima questo messaggio viene inviato dalla classe \texttt{Scan}
-	a tutti gli host raggiungibili in modo che conoscano il nickname dell'utente.
-	\item[\emph{\#\#NICK:$nickname$\#\$\#}] Questo messaggio viene inviato in automatico dalla classe \texttt{Server}
-	come risposta alla ricezione di un messaggio \emph{\#\#NICK:$nickname$\#\#}, è codificato in maniera diversa dal
-	precedente in modo che il Server della controparte non risponda a tale messaggio.
-	\item[\emph{\#\#RESZ:$size$\#\#}] Questo messaggio viene inviato appena prima dell'invio di un allegato in modo che
-	il Server del destinatario allarghi in automatico il buffer di ricezione abbastanza da ricevere l'allegato.
-	Tale buffer verrà poi in automatico reimpostato al default di 256 Byte.
-	\item[\emph{\#\#RCVD:$message$\#\#}] È l'ACK nominato sopra che il Server invia in automatico alla ricezione di un
-	messaggio (né allegato né messaggio speciale) al mittente in modo da fargli sapere che il messaggio è stato
-	ricevuto.
-	\item[\emph{\#\#DOWN\#\#}] Come detto precedentemente è il messaggio che l'applicazione manda a tutti gli host
-	conosciuti appena prima di essere chiusa.
+	\item[-] \emph{\#\#NICK:$nickname$\#\#} Come visto prima questo messaggio viene inviato dalla classe
+	\texttt{Scan} a tutti gli host raggiungibili in modo che conoscano il nickname dell'utente.
+	\item[-] \emph{\#\#NICK:$nickname$\#\$\#} Questo messaggio viene inviato in automatico dalla classe 
+	\texttt{Server} come risposta alla ricezione di un messaggio \emph{\#\#NICK:$nickname$\#\#}, è codificato
+	in maniera diversa dal 	precedente in modo che il Server della controparte non risponda a tale messaggio.
+	\item[-] \emph{\#\#RESZ:$size$\#\#} Questo messaggio viene inviato appena prima dell'invio di un allegato in 
+	modo che il Server del destinatario allarghi in automatico il buffer di ricezione abbastanza da ricevere 
+	l'allegato. Tale buffer verrà poi in automatico reimpostato al default di 256 Byte.
+	\item[-] \emph{\#\#RCVD:$message$\#\#}] È l'ACK nominato sopra che il Server invia in automatico alla ricezione 	
+	di un messaggio (né allegato né messaggio speciale) al mittente in modo da fargli sapere che il messaggio è 
+	stato ricevuto.
+	\item[-] \emph{\#\#DOWN\#\#}] Come detto precedentemente è il messaggio che l'applicazione manda a tutti gli 
+	host conosciuti appena prima di essere chiusa.
 \end{itemize}
 
 La classe \texttt{Server} ha come scopo principale quello di avviare il server

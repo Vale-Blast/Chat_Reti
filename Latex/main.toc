@@ -2,12 +2,12 @@
 \select@language {italian}
 \contentsline {section}{\numberline {1}Presentazione degli obiettivi}{3}{section.1}
 \contentsline {section}{\numberline {2}Progetti a confronto}{3}{section.2}
-\contentsline {section}{\numberline {3}Sviluppo degli Obiettivi}{3}{section.3}
-\contentsline {section}{\numberline {4}Il package app}{5}{section.4}
-\contentsline {subsection}{\numberline {4.1}Avvio dell'applicazione}{5}{subsection.4.1}
-\contentsline {subsection}{\numberline {4.2}Interfaccia Grafica}{5}{subsection.4.2}
-\contentsline {subsection}{\numberline {4.3}Cifratura dei messaggi}{6}{subsection.4.3}
-\contentsline {section}{\numberline {5}Il package net}{6}{section.5}
-\contentsline {subsection}{\numberline {5.1}Ricerca di utenti}{6}{subsection.5.1}
-\contentsline {subsection}{\numberline {5.2}Scambio di messaggi}{7}{subsection.5.2}
-\contentsline {section}{\numberline {6}Conclusioni e sviluppi futuri}{8}{section.6}
+\contentsline {section}{\numberline {3}Sviluppo degli Obiettivi}{4}{section.3}
+\contentsline {section}{\numberline {4}Il package app}{6}{section.4}
+\contentsline {subsection}{\numberline {4.1}Avvio dell'applicazione}{6}{subsection.4.1}
+\contentsline {subsection}{\numberline {4.2}Interfaccia Grafica}{6}{subsection.4.2}
+\contentsline {subsection}{\numberline {4.3}Cifratura dei messaggi}{7}{subsection.4.3}
+\contentsline {section}{\numberline {5}Il package net}{7}{section.5}
+\contentsline {subsection}{\numberline {5.1}Ricerca di utenti}{7}{subsection.5.1}
+\contentsline {subsection}{\numberline {5.2}Scambio di messaggi}{8}{subsection.5.2}
+\contentsline {section}{\numberline {6}Conclusioni e sviluppi futuri}{10}{section.6}

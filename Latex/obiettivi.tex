@@ -37,7 +37,7 @@ con l'utente avente il seguente aspetto:
 \begin{figure}[h]
 \centering
 \includegraphics[scale=0.4]{gui1.jpg}
-\label{fig:gui}
+\caption{GUI principale\label{fig:gui}}
 \end{figure}
 
 Il riquadro in basso permette la scrittura di testo.
@@ -54,11 +54,11 @@ dell'applicazione viene inserito un pulsante con il suo nickname.
 Cliccandoci sopra, diventa possibile chattare con lui e inviargli messaggi.
 Il bottone al centro, invece, apre un'altra piccola finestra.
 
-\begin{figure}[h]
+\begin{figure}[t]
 \centering
 \includegraphics[scale=0.3]{settings.png}
+\caption{Pannello delle impostazioni\label{fig:settings}}
 \end{figure}
-
 Questa finestra gestisce le impostazioni e da qui l'utente può regolare:
 \begin{itemize}
 	\item ogni quanti secondi far eseguire la scansione della rete
@@ -67,7 +67,7 @@ Questa finestra gestisce le impostazioni e da qui l'utente può regolare:
 	chiuso l'applicazione.
 	\item cambiare il suono di notifica che verrà riprodotto all'arrivo di un messaggio	
 \end{itemize}
-Il pulsante mentre quello più a destra consente di chiudere l'applicazione, prima della
+I pulsante più a destra invece consente di chiudere l'applicazione, prima della
 chiusura verrà mostrato un messaggio di conferma per chiedere all'utente se vuole chiudere
 l'applicazione. Prima di essere chiusa l'applicazione manda a tutti gli host conosciuti
 un messaggio speciale \emph{\#\#DOWN\#\#} in modo che gli altri host sulla LAN sappiano che si
@@ -78,13 +78,14 @@ non sia presente (è il primo accesso fatto dall'utente) compare una schermata d
 \begin{figure}[h]
 \centering
 \includegraphics[scale=0.5]{login1.jpg}
-\label{fig:login}
+\caption{Finestra di Login\label{fig:login}}
 \end{figure}
 
 In questa scheda l'utente crea il proprio account, scegliendo un nickname da usare in chat.
 Una volta digitato il nickname, il tasto di conferma diventa cliccabile e premendolo si effettua
 il login ed è possibile iniziare ad usare l'applicazione.
 Viene poi controllata la presenza della coppia di chiavi e nel caso non siano presenti vengono create.
+\\
 
 In questa relazione, analizzeremo a grandi linee la codifica proposta e l'implementazione
 delle varie classi, con particolare enfasi sul ruolo giocato da ognuna di esse.

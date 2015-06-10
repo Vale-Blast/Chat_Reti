@@ -33,12 +33,12 @@ $$ \texttt{nickname.txt} $$
 e mostrati nella schermata principale dell'applicazione grazie al metodo \texttt{openChat()}.
 Il file di configurazione \texttt{.chat}, invece, è un file che permette di
 tenere traccia del nickname dell'utente. Quando avvia l'applicazione per la
-prima volta, infatti, compare la schermata grafica di login\ref{fig:login} per l'inserimento
+prima volta, infatti, compare la schermata grafica di login \ref{fig:login} per l'inserimento
 di un username. Il tasto \texttt{OK} è disabilitato fintanto che l'utente non ha
 scritto almeno una stringa valida, ossia una stringa più lunga di zero caratteri.
 Premendo il tasto di conferma, viene salvata nel file con estensione \texttt{.chat}
 una stringa del tipo:
-$$ \texttt{NICK: nickname} $$
+$$ \texttt{NICK: $nickname$} $$
 insieme ad altre informazioni di configurazione, viste in precedenza.
 
 \subsection{Cifratura dei messaggi}
